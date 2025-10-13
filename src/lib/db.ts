@@ -68,7 +68,7 @@ export function initializeDatabase() {
 
 // Customer operations
 export const customerQueries = {
-  insert: (data: any[]) => {
+  insert: (data: (string | number)[]) => {
     return db.prepare(`
       INSERT INTO customers (
         id, business_name, main_email, main_contact_rep, phone, asi_number,

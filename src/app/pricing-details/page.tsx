@@ -427,7 +427,7 @@ export default function PricingDetailsPage() {
                   <h4 className="font-semibold text-purple-900 mb-2">Basic Full Spot Color Process (Simulated)</h4>
                   <p className="text-sm text-purple-800">7 color on white, 8 color on darks</p>
                   <p className="text-xs text-purple-700 mt-2">
-                    *For full spot color process prints requiring more than 8 colors, see pricing for "additional colors"
+                    *For full spot color process prints requiring more than 8 colors, see pricing for &quot;additional colors&quot;
                   </p>
                 </div>
 
@@ -495,7 +495,7 @@ export default function PricingDetailsPage() {
 
             {/* What's Included */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">What's Included</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">What&apos;s Included</h3>
               <div className="bg-green-50 p-6 rounded-lg">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-green-800">
                   <div>

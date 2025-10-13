@@ -126,7 +126,7 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
               <div key={num} className="flex items-start">
                 <input
                   type="checkbox"
-                  {...register(`paymentDetails.authorization${num}` as any)}
+                  {...register(`paymentDetails.authorization${num}` as `paymentDetails.authorization${number}`)}
                   className="mt-1 mr-2"
                 />
                 <span className="text-sm text-gray-700">
@@ -265,7 +265,7 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
                   <div key={num} className="flex items-start">
                     <input
                       type="checkbox"
-                      {...register(`paymentDetails.authorization${num}` as any)}
+                      {...register(`paymentDetails.authorization${num}` as `paymentDetails.authorization${number}`)}
                       className="mt-1 mr-2"
                     />
                     <span className="text-sm text-gray-700">
@@ -283,7 +283,7 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
                   <div key={num} className="flex items-start">
                     <input
                       type="checkbox"
-                      {...register(`paymentDetails.authorization${num}` as any)}
+                      {...register(`paymentDetails.authorization${num}` as `paymentDetails.authorization${number}`)}
                       className="mt-1 mr-2"
                     />
                     <span className="text-sm text-gray-700">

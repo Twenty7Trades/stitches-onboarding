@@ -475,7 +475,7 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
                 <strong>By signing below I am stating that I have read and I agree to all of the policies stated in the Stitches Contract Client Packet for 2024 and the Terms and Conditions included herein on the Stitches Clothing Co., Terms and Conditions of Sale page of the Contract Client Packet 2024.</strong>
               </p>
               <p className="text-sm text-gray-700 mt-2">
-                I am taking responsibility for this application for my entire company, including all reps who may use our Stitches Clothing Co account. I certify that I am the authorized individual to enter into this agreement on behalf of my company and that I have legal authority to bind the company to the agreement's terms and conditions. I certify that all information above is complete and accurate.
+                I am taking responsibility for this application for my entire company, including all reps who may use our Stitches Clothing Co account. I certify that I am the authorized individual to enter into this agreement on behalf of my company and that I have legal authority to bind the company to the agreement&apos;s terms and conditions. I certify that all information above is complete and accurate.
               </p>
             </div>
 

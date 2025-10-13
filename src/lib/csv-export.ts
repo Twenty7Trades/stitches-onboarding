@@ -2,7 +2,7 @@ import { createObjectCsvWriter } from 'csv-writer';
 import { Application } from './validation';
 
 export function generateCSVData(application: Application) {
-  const data: any = {
+  const data: Record<string, string | number> = {
     // Business Information
     'Business Name': application.businessInfo.businessName,
     'Main Email': application.businessInfo.mainEmail,
@@ -38,13 +38,13 @@ export function generateCSVData(application: Application) {
 
   // Add payment-specific fields
   if (application.paymentMethod === 'ACH') {
-    const achDetails = application.paymentDetails as any;
+    const achDetails = application.paymentDetails as { accountHolderName: string; accountType: string; routingNumber: string; accountNumber: string };
     data['Account Holder Name'] = achDetails.accountHolderName;
     data['Account Type'] = achDetails.accountType;
     data['Routing Number'] = achDetails.routingNumber;
     data['Account Number'] = achDetails.accountNumber;
   } else if (application.paymentMethod === 'CC' || application.paymentMethod === 'NET15') {
-    const ccDetails = application.paymentDetails as any;
+    const ccDetails = application.paymentDetails as { cardholderName: string; cardType: string; cardNumber: string; expirationDate: string; cvcNumber: string; billingZipCode: string };
     data['Cardholder Name'] = ccDetails.cardholderName;
     data['Card Type'] = ccDetails.cardType;
     data['Card Number'] = ccDetails.cardNumber;
@@ -104,7 +104,7 @@ export function createCSVWriter(path: string) {
   });
 }
 
-export function generateCSVBuffer(data: any[]): Buffer {
+export function generateCSVBuffer(data: Record<string, string | number>[]): Buffer {
   const headers = Object.keys(data[0] || {});
   const csvContent = [
     headers.join(','),

@@ -20,11 +20,11 @@ export async function POST(request: NextRequest) {
     let paymentAccountType = '';
 
     if (validatedData.paymentMethod === 'ACH') {
-      const achDetails = validatedData.paymentDetails as any;
+      const achDetails = validatedData.paymentDetails as { accountNumber: string; accountType: string };
       paymentAccountLast4 = getLast4Digits(achDetails.accountNumber);
       paymentAccountType = achDetails.accountType;
     } else if (validatedData.paymentMethod === 'CC' || validatedData.paymentMethod === 'NET15') {
-      const ccDetails = validatedData.paymentDetails as any;
+      const ccDetails = validatedData.paymentDetails as { cardNumber: string; cardType: string };
       paymentCardLast4 = getLast4Digits(ccDetails.cardNumber);
       paymentCardType = ccDetails.cardType;
     }
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function sendAdminNotification(application: any, customerId: string) {
+async function sendAdminNotification(application: unknown, customerId: string) {
   // Configure nodemailer (you'll need to set up SMTP settings)
   const transporter = nodemailer.createTransporter({
     // Configure with your email provider
@@ -148,7 +148,7 @@ async function sendAdminNotification(application: any, customerId: string) {
   await transporter.sendMail(mailOptions);
 }
 
-async function triggerWebhook(application: any, customerId: string) {
+async function triggerWebhook(application: unknown, customerId: string) {
   const webhookUrl = process.env.WEBHOOK_URL;
   
   if (!webhookUrl) {

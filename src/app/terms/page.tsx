@@ -77,7 +77,7 @@ export default function TermsPage() {
 
             <h2 className="text-2xl font-bold text-gray-900 mb-4">How to Use This Packet</h2>
             <p className="text-gray-700 mb-6">
-              Find a cozy seat, grab a cup of coffee (or glass of wine, maybe a beer?) and let's get started! There is a
+              Find a cozy seat, grab a cup of coffee (or glass of wine, maybe a beer?) and let&apos;s get started! There is a
               lot of information in this packet but the good news is you should only have to read it once then reference
               it as needed. The purpose of this packet is to answer any questions you might have about who we are,
               how we operate, and what we do. A lot of work goes into garment decoration and there is plenty of room
@@ -138,7 +138,7 @@ export default function TermsPage() {
 
             <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
               <p className="text-red-800">
-                <strong>Note:</strong> We do not normally "quote" contract print jobs. Exceptions are made for raster print jobs
+                <strong>Note:</strong> We do not normally &quot;quote&quot; contract print jobs. Exceptions are made for raster print jobs
                 (Photoshop files) that must be color separated.
               </p>
             </div>
@@ -155,7 +155,7 @@ export default function TermsPage() {
 
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Order Turn Around Time</h2>
             <p className="text-gray-700 mb-6">
-              We pride ourselves on our quick turn around time, however we can't make it happen without your help.
+              We pride ourselves on our quick turn around time, however we can&apos;t make it happen without your help.
               Our turn around is dependent on clients sending all approvals and garments on time in order to meet our
               deadline requirements for your in hands date. Standard production time (7-10 business days during non
               peak seasons) starts once a client submits a complete order, all artwork, and tracking/confirmation for
@@ -166,13 +166,13 @@ export default function TermsPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Submitting Orders/POs</h2>
             <p className="text-gray-700 mb-4">All contract clients must submit orders via our online order form through the SCC Client Portal. The only
               clients exempt from this policy are those companies who SCC has approved for automatic PO
-              submission through their company's automated systems.</p>
+              submission through their company&apos;s automated systems.</p>
             
             <p className="text-gray-700 mb-4">All order submissions must include:</p>
             <ul className="list-disc pl-6 mb-6 text-gray-700 space-y-2">
               <li>All required fields on the SCC online order form.</li>
               <li>Garment information for all styles, colors, sizes, and quantities on the order.</li>
-              <li>"Print ready" art (see below) as well as color and placement information</li>
+              <li>&quot;Print ready&quot; art (see below) as well as color and placement information</li>
             </ul>
 
             <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
@@ -186,7 +186,7 @@ export default function TermsPage() {
             <p className="text-gray-700 mb-4">To avoid art charges, all artwork must be fully vectored with all fonts converted to outlines, and
               completely spot colored to Pantone C (PMS) spot colors. We only accept high-resolution jpegs (300 DPI
               minimum) or PSD files for jobs that are full-color simulated process. Art that is not provided in an
-              acceptable format and therefore requires editing will result in art fees. We aren't responsible for the
+              acceptable format and therefore requires editing will result in art fees. We aren&apos;t responsible for the
               outcome of client-provided full-color simulated process separations. Please discuss with SCC prior to
               sending separation files to ensure they meet our requirements.</p>
 

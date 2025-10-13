@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
       }
 
       // Create CSV row with all data
-      const row: any = {
+      const row: Record<string, string | number> = {
         'ID': customer.id,
         'Business Name': customer.business_name,
         'Main Email': customer.main_email,

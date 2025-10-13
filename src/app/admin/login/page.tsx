@@ -42,7 +42,7 @@ export default function AdminLoginPage() {
           setError('Login failed. Please try again.');
         }
       }
-    } catch (error) {
+    } catch {
       setError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);

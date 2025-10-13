@@ -35,7 +35,7 @@ interface Customer {
   payment_card_type?: string;
   payment_account_last4?: string;
   payment_account_type?: string;
-  payment_authorizations_decrypted?: any;
+  payment_authorizations_decrypted?: Record<string, unknown>;
   signature_data: string;
   status: string;
   submission_date: string;

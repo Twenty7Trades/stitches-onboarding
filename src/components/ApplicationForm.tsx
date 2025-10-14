@@ -577,7 +577,6 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
               >
                 Submit Application
               </button>
-            </div>
           )}
         </div>
       </div>

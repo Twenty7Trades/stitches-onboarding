@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
-import { adminQueries } from './db';
+import { Pool } from 'pg';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'stitches-onboarding-secret-key-2024';
 const COOKIE_NAME = 'admin-token';
@@ -49,31 +49,52 @@ export function verifyToken(token: string): AdminUser | null {
 export async function authenticateUser(email: string, password: string): Promise<AdminUser | null> {
   try {
     console.log('authenticateUser: Looking for user with email:', email);
-    const user = await adminQueries.getByEmail(email);
-    console.log('authenticateUser: User found:', user ? 'Yes' : 'No');
     
-    if (!user) {
-      console.log('authenticateUser: User not found in database');
-      return null;
-    }
-
-    console.log('authenticateUser: Verifying password...');
-    const isValid = await verifyPassword(password, user.password_hash);
-    console.log('authenticateUser: Password valid:', isValid);
+    // Use direct database connection like our working test endpoints
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    });
     
-    if (!isValid) {
-      console.log('authenticateUser: Invalid password');
-      return null;
+    const client = await pool.connect();
+    try {
+      console.log('authenticateUser: Executing PostgreSQL query...');
+      const result = await client.query(
+        'SELECT * FROM admin_users WHERE email = $1',
+        [email]
+      );
+      console.log('authenticateUser: Query result rows:', result.rows.length);
+      
+      if (result.rows.length === 0) {
+        console.log('authenticateUser: User not found in database');
+        return null;
+      }
+      
+      const user = result.rows[0];
+      console.log('authenticateUser: User found, verifying password...');
+      
+      const isValid = await verifyPassword(password, user.password_hash);
+      console.log('authenticateUser: Password valid:', isValid);
+      
+      if (!isValid) {
+        console.log('authenticateUser: Invalid password');
+        return null;
+      }
+
+      // Update last login
+      await client.query(
+        'UPDATE admin_users SET last_login = NOW() WHERE id = $1',
+        [user.id]
+      );
+
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name || 'Admin User'
+      };
+    } finally {
+      client.release();
     }
-
-    // Update last login
-    await adminQueries.updateLastLogin(user.id);
-
-    return {
-      id: user.id,
-      email: user.email,
-      name: user.name || 'Admin User'
-    };
   } catch (error) {
     console.error('Authentication error:', error);
     return null;

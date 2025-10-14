@@ -14,23 +14,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          console.log('Missing credentials');
           return null;
         }
 
         try {
+          console.log('Attempting to authenticate user:', (credentials as any).email);
           const user = await adminQueries.getByEmail((credentials as any).email);
           if (!user) {
+            console.log('User not found:', (credentials as any).email);
             return null;
           }
 
+          console.log('User found, checking password');
           const isPasswordValid = await bcrypt.compare((credentials as any).password, user.password_hash);
           if (!isPasswordValid) {
+            console.log('Invalid password for user:', (credentials as any).email);
             return null;
           }
 
+          console.log('Password valid, updating last login');
           // Update last login
           await adminQueries.updateLastLogin(user.id);
 
+          console.log('Authentication successful for user:', user.email);
           return {
             id: user.id,
             email: user.email,

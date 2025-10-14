@@ -28,18 +28,6 @@ function getDatabase() {
   return null;
 }
 
-// Initialize database connections only at runtime
-if (!isBuildTime) {
-  if (isProduction) {
-    pgPool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false }
-    });
-  } else {
-    db = new Database('stitches.db');
-  }
-}
-
 // Initialize database tables
 export async function initializeDatabase() {
   const database = getDatabase();

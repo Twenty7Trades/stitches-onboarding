@@ -64,12 +64,39 @@ async function initializeProductionDatabase() {
       )
     `);
 
-    // Create indexes
-    await client.query(`
-      CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(main_email);
-      CREATE INDEX IF NOT EXISTS idx_customers_status ON customers(status);
-      CREATE INDEX IF NOT EXISTS idx_customers_submission_date ON customers(submission_date DESC);
-    `);
+    // Add name column if it doesn't exist
+    try {
+      await client.query(`
+        ALTER TABLE admin_users ADD COLUMN IF NOT EXISTS name VARCHAR(255);
+      `);
+    } catch (error) {
+      console.log('Name column already exists or error adding it');
+    }
+
+    // Create indexes (only if columns exist)
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(main_email);
+      `);
+    } catch (error) {
+      console.log('Index idx_customers_email already exists or column not found');
+    }
+    
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_customers_status ON customers(status);
+      `);
+    } catch (error) {
+      console.log('Index idx_customers_status already exists or column not found');
+    }
+    
+    try {
+      await client.query(`
+        CREATE INDEX IF NOT EXISTS idx_customers_submission_date ON customers(submission_date DESC);
+      `);
+    } catch (error) {
+      console.log('Index idx_customers_submission_date already exists or column not found');
+    }
 
     console.log('Production database initialized successfully!');
     console.log('Tables created: customers, admin_users');

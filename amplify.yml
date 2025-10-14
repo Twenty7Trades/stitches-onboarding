@@ -12,6 +12,9 @@ frontend:
         - echo "Building Next.js application..."
         - npm run build
         - echo "Build completed successfully"
+    postBuild:
+      commands:
+        - echo "Build phase completed - database will be initialized on first API call"
   artifacts:
     baseDirectory: .next
     files:

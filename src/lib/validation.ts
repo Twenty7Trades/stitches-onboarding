@@ -8,7 +8,7 @@ export const businessInfoSchema = z.object({
   phone: z.string().min(10, 'Valid phone number is required'),
   asiNumber: z.string().optional(),
   businessType: z.enum(['Corp.', 'Partnership', 'Sole Prop.', 'LLC.', 'NA'], {
-    required_error: 'Please select a business type'
+    message: 'Please select a business type'
   }),
   yearsInBusiness: z.number().min(0, 'Years in business must be 0 or greater'),
   einNumber: z.string().min(9, 'EIN must be 9 digits').max(9, 'EIN must be 9 digits'),
@@ -41,7 +41,7 @@ export const shippingInfoSchema = z.object({
 export const achPaymentSchema = z.object({
   accountHolderName: z.string().min(1, 'Account holder name is required'),
   accountType: z.enum(['CHECKING', 'SAVINGS'], {
-    required_error: 'Please select account type'
+    message: 'Please select account type'
   }),
   routingNumber: z.string().regex(/^\d{9}$/, 'Routing number must be 9 digits'),
   accountNumber: z.string().min(4, 'Account number is required'),
@@ -54,7 +54,7 @@ export const achPaymentSchema = z.object({
 export const ccPaymentSchema = z.object({
   cardholderName: z.string().min(1, 'Cardholder name is required'),
   cardType: z.enum(['VISA', 'MC', 'AMEX', 'DISCOVER', 'OTHER'], {
-    required_error: 'Please select card type'
+    message: 'Please select card type'
   }),
   cardNumber: z.string().min(13, 'Valid card number is required'),
   expirationDate: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, 'Valid expiration date (MM/YY) is required'),
@@ -70,7 +70,7 @@ export const ccPaymentSchema = z.object({
 export const net15PaymentSchema = z.object({
   cardholderName: z.string().min(1, 'Cardholder name is required'),
   cardType: z.enum(['VISA', 'MC', 'AMEX', 'DISCOVER', 'OTHER'], {
-    required_error: 'Please select card type'
+    message: 'Please select card type'
   }),
   cardNumber: z.string().min(13, 'Valid card number is required'),
   expirationDate: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, 'Valid expiration date (MM/YY) is required'),
@@ -85,7 +85,7 @@ export const net15PaymentSchema = z.object({
 
 // Payment Method Selection Schema
 export const paymentMethodSchema = z.enum(['ACH', 'CC', 'NET15'], {
-  required_error: 'Please select a payment method'
+  message: 'Please select a payment method'
 });
 
 // Signature Schema

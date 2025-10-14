@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { applicationSchema } from '@/lib/validation';
+import { applicationSchema, Application } from '@/lib/validation';
 import { customerQueries, uuidv4 } from '@/lib/db';
 import { encrypt, getLast4Digits } from '@/lib/encryption';
 import { generateCSVData, generateCSVBuffer } from '@/lib/csv-export';
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       validatedData.businessInfo.mainEmail,
       validatedData.businessInfo.mainContactRep,
       validatedData.businessInfo.phone,
-      validatedData.businessInfo.asiNumber || null,
+      validatedData.businessInfo.asiNumber || '',
       validatedData.businessInfo.businessType,
       validatedData.businessInfo.yearsInBusiness,
       encryptedEIN,
@@ -60,10 +60,10 @@ export async function POST(request: NextRequest) {
       validatedData.shippingInfo.shippingContact,
       validatedData.shippingInfo.shippingPhone,
       validatedData.paymentMethod,
-      paymentCardLast4 || null,
-      paymentCardType || null,
-      paymentAccountLast4 || null,
-      paymentAccountType || null,
+      paymentCardLast4 || '',
+      paymentCardType || '',
+      paymentAccountLast4 || '',
+      paymentAccountType || '',
       encryptedAuthorizations,
       validatedData.signature.signature
     ]);
@@ -113,9 +113,9 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function sendAdminNotification(application: unknown, customerId: string) {
+async function sendAdminNotification(application: Application, customerId: string) {
   // Configure nodemailer (you'll need to set up SMTP settings)
-  const transporter = nodemailer.createTransporter({
+  const transporter = nodemailer.createTransport({
     // Configure with your email provider
     // For now, we'll use a placeholder configuration
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -148,7 +148,7 @@ async function sendAdminNotification(application: unknown, customerId: string) {
   await transporter.sendMail(mailOptions);
 }
 
-async function triggerWebhook(application: unknown, customerId: string) {
+async function triggerWebhook(application: Application, customerId: string) {
   const webhookUrl = process.env.WEBHOOK_URL;
   
   if (!webhookUrl) {

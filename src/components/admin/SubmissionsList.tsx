@@ -40,18 +40,19 @@ export default function SubmissionsList({ customers, onStatusUpdate, onExport }:
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
-      let aValue = a[sortBy as keyof Customer];
-      let bValue = b[sortBy as keyof Customer];
+      const aValue = a[sortBy as keyof Customer];
+      const bValue = b[sortBy as keyof Customer];
       
       if (sortBy === 'submission_date') {
-        aValue = new Date(aValue as string).getTime();
-        bValue = new Date(bValue as string).getTime();
+        const aTime = new Date(aValue as string).getTime();
+        const bTime = new Date(bValue as string).getTime();
+        return sortOrder === 'asc' ? aTime - bTime : bTime - aTime;
       }
       
       if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1;
+        return (aValue || '') > (bValue || '') ? 1 : -1;
       } else {
-        return aValue < bValue ? 1 : -1;
+        return (aValue || '') < (bValue || '') ? 1 : -1;
       }
     });
 

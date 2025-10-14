@@ -112,9 +112,9 @@ export async function GET(request: NextRequest) {
         'Payment Account Last 4': customer.payment_account_last4 || '',
         'Payment Account Type': customer.payment_account_type || '',
         'Status': customer.status || '',
-        'Submission Date': customer.submission_date,
-        'Created At': customer.created_at,
-        'Updated At': customer.updated_at
+        'Submission Date': customer.submission_date || '',
+        'Created At': customer.created_at || '',
+        'Updated At': customer.updated_at || ''
       };
 
       // Add decrypted payment details if available
@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
 
     const csvBuffer = generateCSVBuffer(csvData);
     
-    return new NextResponse(csvBuffer, {
+    return new NextResponse(csvBuffer.toString(), {
       headers: {
         'Content-Type': 'text/csv',
         'Content-Disposition': 'attachment; filename="stitches-customers.csv"'

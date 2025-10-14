@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
@@ -16,12 +17,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        const user = await adminQueries.getByEmail(credentials.email);
+        const user = await adminQueries.getByEmail((credentials as any).email);
         if (!user) {
           return null;
         }
 
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password_hash);
+        const isPasswordValid = await bcrypt.compare((credentials as any).password, user.password_hash);
         if (!isPasswordValid) {
           return null;
         }

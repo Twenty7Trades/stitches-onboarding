@@ -46,7 +46,7 @@ export async function initializeDatabase() {
   
   if (isProduction && database) {
     // PostgreSQL initialization
-    const client = await database.connect();
+    const client = await (database as Pool).connect();
     try {
       // Create customers table
       await client.query(`
@@ -112,7 +112,7 @@ export async function initializeDatabase() {
     }
   } else if (database) {
     // SQLite initialization
-    database.exec(`
+    (database as Database.Database).exec(`
       CREATE TABLE IF NOT EXISTS customers (
         id TEXT PRIMARY KEY,
         business_name TEXT NOT NULL,
@@ -152,7 +152,7 @@ export async function initializeDatabase() {
       )
     `);
 
-    database.exec(`
+    (database as Database.Database).exec(`
       CREATE TABLE IF NOT EXISTS admin_users (
         id TEXT PRIMARY KEY,
         email TEXT UNIQUE NOT NULL,
@@ -164,7 +164,7 @@ export async function initializeDatabase() {
     `);
 
     // Create indexes
-    database.exec(`
+    (database as Database.Database).exec(`
       CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(main_email);
       CREATE INDEX IF NOT EXISTS idx_customers_status ON customers(status);
       CREATE INDEX IF NOT EXISTS idx_customers_submission_date ON customers(submission_date DESC);
@@ -177,7 +177,7 @@ export const customerQueries = {
   insert: async (data: (string | number)[]) => {
     const database = getDatabase();
     if (isProduction && database) {
-      const client = await database.connect();
+      const client = await (database as Pool).connect();
       try {
         const result = await client.query(`
           INSERT INTO customers (
@@ -195,7 +195,7 @@ export const customerQueries = {
         client.release();
       }
     } else if (database) {
-      return database.prepare(`
+      return (database as Database.Database).prepare(`
         INSERT INTO customers (
           id, business_name, main_email, main_contact_rep, phone, asi_number,
           business_type, years_in_business, ein_number_encrypted, estimated_annual_business,
@@ -212,7 +212,7 @@ export const customerQueries = {
   getAll: async () => {
     const database = getDatabase();
     if (isProduction && database) {
-      const client = await database.connect();
+      const client = await (database as Pool).connect();
       try {
         const result = await client.query(`
           SELECT * FROM customers ORDER BY submission_date DESC
@@ -222,7 +222,7 @@ export const customerQueries = {
         client.release();
       }
     } else if (database) {
-      return database.prepare(`
+      return (database as Database.Database).prepare(`
         SELECT * FROM customers ORDER BY submission_date DESC
       `).all();
     }
@@ -232,7 +232,7 @@ export const customerQueries = {
   getById: async (id: string) => {
     const database = getDatabase();
     if (isProduction && database) {
-      const client = await database.connect();
+      const client = await (database as Pool).connect();
       try {
         const result = await client.query(`
           SELECT * FROM customers WHERE id = $1
@@ -242,7 +242,7 @@ export const customerQueries = {
         client.release();
       }
     } else if (database) {
-      return database.prepare(`
+      return (database as Database.Database).prepare(`
         SELECT * FROM customers WHERE id = ?
       `).get(id);
     }
@@ -252,7 +252,7 @@ export const customerQueries = {
   updateStatus: async (status: string, id: string) => {
     const database = getDatabase();
     if (isProduction && database) {
-      const client = await database.connect();
+      const client = await (database as Pool).connect();
       try {
         const result = await client.query(`
           UPDATE customers SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2
@@ -262,7 +262,7 @@ export const customerQueries = {
         client.release();
       }
     } else if (database) {
-      return database.prepare(`
+      return (database as Database.Database).prepare(`
         UPDATE customers SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
       `).run(status, id);
     }
@@ -274,7 +274,7 @@ export const adminQueries = {
   insert: async (id: string, email: string, passwordHash: string, name: string) => {
     const database = getDatabase();
     if (isProduction && database) {
-      const client = await database.connect();
+      const client = await (database as Pool).connect();
       try {
         const result = await client.query(`
           INSERT INTO admin_users (id, email, password_hash, name) VALUES ($1, $2, $3, $4)
@@ -284,7 +284,7 @@ export const adminQueries = {
         client.release();
       }
     } else if (database) {
-      return database.prepare(`
+      return (database as Database.Database).prepare(`
         INSERT INTO admin_users (id, email, password_hash, name) VALUES (?, ?, ?, ?)
       `).run(id, email, passwordHash, name);
     }
@@ -293,7 +293,7 @@ export const adminQueries = {
   getByEmail: async (email: string) => {
     const database = getDatabase();
     if (isProduction && database) {
-      const client = await database.connect();
+      const client = await (database as Pool).connect();
       try {
         const result = await client.query(`
           SELECT * FROM admin_users WHERE email = $1
@@ -303,7 +303,7 @@ export const adminQueries = {
         client.release();
       }
     } else if (database) {
-      return database.prepare(`
+      return (database as Database.Database).prepare(`
         SELECT * FROM admin_users WHERE email = ?
       `).get(email);
     }
@@ -313,7 +313,7 @@ export const adminQueries = {
   updateLastLogin: async (id: string) => {
     const database = getDatabase();
     if (isProduction && database) {
-      const client = await database.connect();
+      const client = await (database as Pool).connect();
       try {
         const result = await client.query(`
           UPDATE admin_users SET last_login = CURRENT_TIMESTAMP WHERE id = $1
@@ -323,7 +323,7 @@ export const adminQueries = {
         client.release();
       }
     } else if (database) {
-      return database.prepare(`
+      return (database as Database.Database).prepare(`
         UPDATE admin_users SET last_login = CURRENT_TIMESTAMP WHERE id = ?
       `).run(id);
     }

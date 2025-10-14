@@ -1,5 +1,6 @@
 'use client';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { UseFormRegister, UseFormWatch, FieldErrors } from 'react-hook-form';
 import { Application } from '@/lib/validation';
@@ -54,9 +55,9 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
                 {...register('paymentDetails.accountHolderName')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
               />
-              {errors.paymentDetails?.accountHolderName && (
+              {(errors.paymentDetails as any)?.accountHolderName && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.paymentDetails.accountHolderName.message}
+                  {(errors.paymentDetails as any).accountHolderName.message}
                 </p>
               )}
             </div>
@@ -78,9 +79,9 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
                   </label>
                 ))}
               </div>
-              {errors.paymentDetails?.accountType && (
+              {(errors.paymentDetails as any)?.accountType && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.paymentDetails.accountType.message}
+                  {(errors.paymentDetails as any).accountType.message}
                 </p>
               )}
             </div>
@@ -95,9 +96,9 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
                 placeholder="9 digits"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
               />
-              {errors.paymentDetails?.routingNumber && (
+              {(errors.paymentDetails as any)?.routingNumber && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.paymentDetails.routingNumber.message}
+                  {(errors.paymentDetails as any).routingNumber.message}
                 </p>
               )}
             </div>
@@ -111,9 +112,9 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
                 {...register('paymentDetails.accountNumber')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
               />
-              {errors.paymentDetails?.accountNumber && (
+              {(errors.paymentDetails as any)?.accountNumber && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.paymentDetails.accountNumber.message}
+                  {(errors.paymentDetails as any).accountNumber.message}
                 </p>
               )}
             </div>
@@ -126,7 +127,7 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
               <div key={num} className="flex items-start">
                 <input
                   type="checkbox"
-                  {...register(`paymentDetails.authorization${num}` as `paymentDetails.authorization${number}`)}
+                  {...register(`paymentDetails.authorization${num}` as any)}
                   className="mt-1 mr-2"
                 />
                 <span className="text-sm text-gray-700">
@@ -157,9 +158,9 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
                 {...register('paymentDetails.cardholderName')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
               />
-              {errors.paymentDetails?.cardholderName && (
+              {(errors.paymentDetails as any)?.cardholderName && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.paymentDetails.cardholderName.message}
+                  {(errors.paymentDetails as any).cardholderName.message}
                 </p>
               )}
             </div>
@@ -181,9 +182,9 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
                   </label>
                 ))}
               </div>
-              {errors.paymentDetails?.cardType && (
+              {(errors.paymentDetails as any)?.cardType && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.paymentDetails.cardType.message}
+                  {(errors.paymentDetails as any).cardType.message}
                 </p>
               )}
             </div>
@@ -198,9 +199,9 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
                 placeholder="1234 5678 9012 3456"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
               />
-              {errors.paymentDetails?.cardNumber && (
+              {(errors.paymentDetails as any)?.cardNumber && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.paymentDetails.cardNumber.message}
+                  {(errors.paymentDetails as any).cardNumber.message}
                 </p>
               )}
             </div>
@@ -215,9 +216,9 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
                 placeholder="MM/YY"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
               />
-              {errors.paymentDetails?.expirationDate && (
+              {(errors.paymentDetails as any)?.expirationDate && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.paymentDetails.expirationDate.message}
+                  {(errors.paymentDetails as any).expirationDate.message}
                 </p>
               )}
             </div>
@@ -232,9 +233,9 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
                 placeholder="123"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
               />
-              {errors.paymentDetails?.cvcNumber && (
+              {(errors.paymentDetails as any)?.cvcNumber && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.paymentDetails.cvcNumber.message}
+                  {(errors.paymentDetails as any).cvcNumber.message}
                 </p>
               )}
             </div>
@@ -248,9 +249,9 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
                 {...register('paymentDetails.billingZipCode')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
               />
-              {errors.paymentDetails?.billingZipCode && (
+              {(errors.paymentDetails as any)?.billingZipCode && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.paymentDetails.billingZipCode.message}
+                  {(errors.paymentDetails as any).billingZipCode.message}
                 </p>
               )}
             </div>
@@ -265,7 +266,7 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
                   <div key={num} className="flex items-start">
                     <input
                       type="checkbox"
-                      {...register(`paymentDetails.authorization${num}` as `paymentDetails.authorization${number}`)}
+                      {...register(`paymentDetails.authorization${num}` as any)}
                       className="mt-1 mr-2"
                     />
                     <span className="text-sm text-gray-700">
@@ -283,7 +284,7 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
                   <div key={num} className="flex items-start">
                     <input
                       type="checkbox"
-                      {...register(`paymentDetails.authorization${num}` as `paymentDetails.authorization${number}`)}
+                      {...register(`paymentDetails.authorization${num}` as any)}
                       className="mt-1 mr-2"
                     />
                     <span className="text-sm text-gray-700">

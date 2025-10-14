@@ -279,22 +279,33 @@ export const adminQueries = {
   },
 
   getByEmail: async (email: string) => {
+    console.log('adminQueries.getByEmail: Looking for email:', email);
     const database = getDatabase();
+    console.log('adminQueries.getByEmail: Database connection:', database ? 'Connected' : 'Not connected');
+    console.log('adminQueries.getByEmail: Is production:', isProduction);
+    
     if (isProduction && database) {
       const client = await (database as Pool).connect();
       try {
+        console.log('adminQueries.getByEmail: Executing PostgreSQL query...');
         const result = await client.query(`
           SELECT * FROM admin_users WHERE email = $1
         `, [email]);
+        console.log('adminQueries.getByEmail: Query result rows:', result.rows.length);
+        console.log('adminQueries.getByEmail: First row:', result.rows[0] ? 'Found user' : 'No user found');
         return result.rows[0] || null;
       } finally {
         client.release();
       }
     } else if (database) {
-      return (database as Database.Database).prepare(`
+      console.log('adminQueries.getByEmail: Using SQLite...');
+      const result = (database as Database.Database).prepare(`
         SELECT * FROM admin_users WHERE email = ?
       `).get(email);
+      console.log('adminQueries.getByEmail: SQLite result:', result ? 'Found user' : 'No user found');
+      return result;
     }
+    console.log('adminQueries.getByEmail: No database connection, returning null');
     return null;
   },
 

@@ -85,20 +85,26 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
   };
 
   const onFormSubmit = async (data: Application) => {
+    console.log('onFormSubmit called with data:', data);
+    console.log('Signature length:', signature.length);
     setValidationErrors([]);
     
     if (signature.length === 0) {
+      console.log('No signature provided, showing error');
       setValidationErrors(['Please provide your digital signature']);
       return;
     }
     
     try {
+      console.log('Preparing form data for submission...');
       const formData = {
         ...data,
         signature: { signature }
       };
       
+      console.log('Calling onSubmit with formData:', formData);
       await onSubmit(formData);
+      console.log('Form submission successful');
     } catch (error) {
       console.error('Form submission error:', error);
       setValidationErrors(['There was an error submitting your application. Please try again.']);
@@ -559,6 +565,7 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
             <button
               type="submit"
               disabled={isLoading || signature.length === 0}
+              onClick={() => console.log('Submit button clicked, isLoading:', isLoading, 'signature.length:', signature.length)}
               className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Submitting...' : 'Submit Application'}

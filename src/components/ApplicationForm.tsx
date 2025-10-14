@@ -85,26 +85,20 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
   };
 
   const onFormSubmit = async (data: Application) => {
-    console.log('onFormSubmit called with data:', data);
-    console.log('Signature length:', signature.length);
     setValidationErrors([]);
     
     if (signature.length === 0) {
-      console.log('No signature provided, showing error');
       setValidationErrors(['Please provide your digital signature']);
       return;
     }
     
     try {
-      console.log('Preparing form data for submission...');
       const formData = {
         ...data,
         signature: { signature }
       };
       
-      console.log('Calling onSubmit with formData:', formData);
       await onSubmit(formData);
-      console.log('Form submission successful');
     } catch (error) {
       console.error('Form submission error:', error);
       setValidationErrors(['There was an error submitting your application. Please try again.']);
@@ -131,7 +125,7 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-8">
+      <div className="space-y-8">
         {/* Validation Error Display */}
         {validationErrors.length > 0 && (
           <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
@@ -535,13 +529,10 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
               </p>
             </div>
 
-            <SignatureCanvasComponent
-              onSignatureChange={(sig) => {
-                console.log('Signature changed, length:', sig.length);
-                setSignature(sig);
-              }}
-              value={signature}
-            />
+                  <SignatureCanvasComponent
+                    onSignatureChange={setSignature}
+                    value={signature}
+                  />
           </div>
         )}
 
@@ -565,41 +556,31 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
               Next
             </button>
           ) : (
-            <div>
-              <div className="mb-2 text-sm text-gray-600">
-                Debug: isLoading={isLoading ? 'true' : 'false'}, signature.length={signature.length}
-              </div>
-              <button
+            <button
                 type="button"
                 onClick={async () => {
-                  console.log('Manual submit button clicked');
                   const formData = watch();
-                  console.log('Manual form data:', formData);
-                  console.log('Manual signature length:', signature.length);
                   
                   if (signature.length === 0) {
-                    console.log('No signature, cannot submit');
                     setValidationErrors(['Please provide your digital signature']);
                     return;
                   }
                   
                   try {
-                    console.log('Calling onFormSubmit manually...');
                     await onFormSubmit(formData);
-                    console.log('Manual submission successful');
                   } catch (error) {
-                    console.error('Manual submission error:', error);
+                    console.error('Form submission error:', error);
                     setValidationErrors(['There was an error submitting your application. Please try again.']);
                   }
                 }}
                 className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
               >
-                Submit Application (Manual)
+                Submit Application
               </button>
             </div>
           )}
         </div>
-      </form>
+      </div>
     </div>
   );
 }

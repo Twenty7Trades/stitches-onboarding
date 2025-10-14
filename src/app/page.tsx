@@ -33,7 +33,8 @@ export default function HomePage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit application');
+        const errorData = await response.json();
+        throw new Error(errorData.details || 'Failed to submit application');
       }
 
       const result = await response.json();
@@ -46,7 +47,7 @@ export default function HomePage() {
       setIsSubmitted(true);
     } catch (error) {
       console.error('Error submitting application:', error);
-      alert('There was an error submitting your application. Please try again.');
+      throw error; // Re-throw to let the form component handle it
     } finally {
       setIsSubmitting(false);
     }

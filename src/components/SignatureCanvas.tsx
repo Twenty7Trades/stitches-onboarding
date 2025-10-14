@@ -47,13 +47,13 @@ export default function SignatureCanvasComponent({
         </p>
       </div>
       
-      <div className="border border-gray-200 rounded bg-white relative" style={{ width: '100%', height: '150px' }}>
+      <div className="border border-gray-200 rounded bg-white relative overflow-hidden" style={{ width: '100%', height: '150px' }}>
         <SignatureCanvas
           ref={sigPad}
           canvasProps={{
-            width: 400,
+            width: 800,
             height: 150,
-            className: 'w-full h-full cursor-crosshair',
+            className: 'cursor-crosshair',
             style: { 
               display: 'block',
               margin: '0',
@@ -63,7 +63,11 @@ export default function SignatureCanvasComponent({
               position: 'absolute',
               top: '0',
               left: '0',
-              touchAction: 'none'
+              width: '100%',
+              height: '100%',
+              touchAction: 'none',
+              transform: 'scale(0.5)',
+              transformOrigin: 'top left'
             }
           }}
           onEnd={handleEnd}

@@ -15,6 +15,7 @@ interface ApplicationFormProps {
 export default function ApplicationForm({ onSubmit, isLoading }: ApplicationFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [signature, setSignature] = useState('');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const {
     register,
@@ -30,27 +31,49 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
   const totalSteps = 5;
 
   const nextStep = async () => {
+    setValidationErrors([]);
     let isValid = false;
+    let errorMessages: string[] = [];
     
     switch (currentStep) {
       case 1:
         isValid = await trigger('businessInfo');
+        if (!isValid) {
+          errorMessages.push('Please complete all required business information fields');
+        }
         break;
       case 2:
         isValid = await trigger('billingInfo');
+        if (!isValid) {
+          errorMessages.push('Please complete all required billing information fields');
+        }
         break;
       case 3:
         isValid = await trigger('shippingInfo');
+        if (!isValid) {
+          errorMessages.push('Please complete all required shipping information fields');
+        }
         break;
       case 4:
         isValid = await trigger(['paymentMethod', 'paymentDetails']);
+        if (!isValid) {
+          errorMessages.push('Please complete all required payment information fields');
+        }
         break;
       case 5:
         isValid = signature.length > 0;
+        if (!isValid) {
+          errorMessages.push('Please provide your digital signature');
+        }
         break;
     }
 
-    if (isValid && currentStep < totalSteps) {
+    if (!isValid) {
+      setValidationErrors(errorMessages);
+      return;
+    }
+
+    if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -62,17 +85,24 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
   };
 
   const onFormSubmit = async (data: Application) => {
+    setValidationErrors([]);
+    
     if (signature.length === 0) {
-      alert('Please provide your digital signature');
+      setValidationErrors(['Please provide your digital signature']);
       return;
     }
     
-    const formData = {
-      ...data,
-      signature: { signature }
-    };
-    
-    await onSubmit(formData);
+    try {
+      const formData = {
+        ...data,
+        signature: { signature }
+      };
+      
+      await onSubmit(formData);
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setValidationErrors(['There was an error submitting your application. Please try again.']);
+    }
   };
 
   return (
@@ -96,6 +126,26 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
       </div>
 
       <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-8">
+        {/* Validation Error Display */}
+        {validationErrors.length > 0 && (
+          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <ul className="list-disc list-inside">
+                  {validationErrors.map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Step 1: Business Information */}
         {currentStep === 1 && (
           <div className="bg-white p-6 rounded-lg shadow-sm border">

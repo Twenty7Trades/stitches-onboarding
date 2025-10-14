@@ -4,6 +4,15 @@ import { customerQueries } from '@/lib/db';
 import { decrypt } from '@/lib/encryption';
 import { generateCSVBuffer } from '@/lib/csv-export';
 
+interface Customer {
+  id: string;
+  business_name: string;
+  main_email: string;
+  ein_number_encrypted?: string;
+  payment_authorizations_encrypted?: string;
+  [key: string]: string | number | null | undefined;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();
@@ -23,7 +32,7 @@ export async function GET(request: NextRequest) {
 
     if (format === 'json') {
       // For JSON export, include decrypted data
-      const customersWithDecryptedData = customers.map(customer => {
+      const customersWithDecryptedData = customers.map((customer: Customer) => {
         let decryptedEIN = '';
         let decryptedAuthorizations = null;
         
@@ -56,7 +65,7 @@ export async function GET(request: NextRequest) {
     }
 
     // CSV export
-    const csvData = customers.map(customer => {
+    const csvData = customers.map((customer: Customer) => {
       let decryptedEIN = '';
       let decryptedAuthorizations = null;
       
@@ -76,33 +85,33 @@ export async function GET(request: NextRequest) {
         'ID': customer.id,
         'Business Name': customer.business_name,
         'Main Email': customer.main_email,
-        'Main Contact Rep': customer.main_contact_rep,
-        'Phone': customer.phone,
+        'Main Contact Rep': customer.main_contact_rep || '',
+        'Phone': customer.phone || '',
         'ASI Number': customer.asi_number || '',
-        'Business Type': customer.business_type,
-        'Years in Business': customer.years_in_business,
+        'Business Type': customer.business_type || '',
+        'Years in Business': customer.years_in_business || 0,
         'EIN Number': decryptedEIN,
-        'Estimated Annual Business': customer.estimated_annual_business,
-        'Average Order Size': customer.average_order_size,
-        'Billing Address': customer.billing_address,
-        'Billing City': customer.billing_city,
-        'Billing State': customer.billing_state,
-        'Billing Zip': customer.billing_zip,
-        'Billing Contact': customer.billing_contact,
-        'Billing Phone': customer.billing_phone,
-        'Billing Email': customer.billing_email,
-        'Shipping Address': customer.shipping_address,
-        'Shipping City': customer.shipping_city,
-        'Shipping State': customer.shipping_state,
-        'Shipping Zip': customer.shipping_zip,
-        'Shipping Contact': customer.shipping_contact,
-        'Shipping Phone': customer.shipping_phone,
-        'Payment Method': customer.payment_method,
+        'Estimated Annual Business': customer.estimated_annual_business || 0,
+        'Average Order Size': customer.average_order_size || 0,
+        'Billing Address': customer.billing_address || '',
+        'Billing City': customer.billing_city || '',
+        'Billing State': customer.billing_state || '',
+        'Billing Zip': customer.billing_zip || '',
+        'Billing Contact': customer.billing_contact || '',
+        'Billing Phone': customer.billing_phone || '',
+        'Billing Email': customer.billing_email || '',
+        'Shipping Address': customer.shipping_address || '',
+        'Shipping City': customer.shipping_city || '',
+        'Shipping State': customer.shipping_state || '',
+        'Shipping Zip': customer.shipping_zip || '',
+        'Shipping Contact': customer.shipping_contact || '',
+        'Shipping Phone': customer.shipping_phone || '',
+        'Payment Method': customer.payment_method || '',
         'Payment Card Last 4': customer.payment_card_last4 || '',
         'Payment Card Type': customer.payment_card_type || '',
         'Payment Account Last 4': customer.payment_account_last4 || '',
         'Payment Account Type': customer.payment_account_type || '',
-        'Status': customer.status,
+        'Status': customer.status || '',
         'Submission Date': customer.submission_date,
         'Created At': customer.created_at,
         'Updated At': customer.updated_at

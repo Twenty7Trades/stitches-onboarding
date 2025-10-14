@@ -4,26 +4,49 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Determine if we're in production (PostgreSQL) or development (SQLite)
 const isProduction = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL?.startsWith('postgresql://');
+const isBuildTime = process.env.BUILD_TIME === 'true';
 
 let db: Database.Database | null = null;
 let pgPool: Pool | null = null;
 
-if (isProduction) {
-  // PostgreSQL configuration for production
-  pgPool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-  });
-} else {
-  // SQLite configuration for development
-  db = new Database('stitches.db');
+// Lazy initialization - only connect at runtime, not during build
+function getDatabase() {
+  if (isProduction && !isBuildTime) {
+    if (!pgPool) {
+      pgPool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
+      });
+    }
+    return pgPool;
+  } else if (!isProduction && !isBuildTime) {
+    if (!db) {
+      db = new Database('stitches.db');
+    }
+    return db;
+  }
+  return null;
+}
+
+// Initialize database connections only at runtime
+if (!isBuildTime) {
+  if (isProduction) {
+    pgPool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    });
+  } else {
+    db = new Database('stitches.db');
+  }
 }
 
 // Initialize database tables
 export async function initializeDatabase() {
-  if (isProduction && pgPool) {
+  const database = getDatabase();
+  
+  if (isProduction && database) {
     // PostgreSQL initialization
-    const client = await pgPool.connect();
+    const client = await database.connect();
     try {
       // Create customers table
       await client.query(`
@@ -87,9 +110,9 @@ export async function initializeDatabase() {
     } finally {
       client.release();
     }
-  } else if (db) {
+  } else if (database) {
     // SQLite initialization
-    db.exec(`
+    database.exec(`
       CREATE TABLE IF NOT EXISTS customers (
         id TEXT PRIMARY KEY,
         business_name TEXT NOT NULL,
@@ -129,7 +152,7 @@ export async function initializeDatabase() {
       )
     `);
 
-    db.exec(`
+    database.exec(`
       CREATE TABLE IF NOT EXISTS admin_users (
         id TEXT PRIMARY KEY,
         email TEXT UNIQUE NOT NULL,
@@ -141,7 +164,7 @@ export async function initializeDatabase() {
     `);
 
     // Create indexes
-    db.exec(`
+    database.exec(`
       CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(main_email);
       CREATE INDEX IF NOT EXISTS idx_customers_status ON customers(status);
       CREATE INDEX IF NOT EXISTS idx_customers_submission_date ON customers(submission_date DESC);
@@ -152,8 +175,9 @@ export async function initializeDatabase() {
 // Customer operations
 export const customerQueries = {
   insert: async (data: (string | number)[]) => {
-    if (isProduction && pgPool) {
-      const client = await pgPool.connect();
+    const database = getDatabase();
+    if (isProduction && database) {
+      const client = await database.connect();
       try {
         const result = await client.query(`
           INSERT INTO customers (
@@ -170,8 +194,8 @@ export const customerQueries = {
       } finally {
         client.release();
       }
-    } else if (db) {
-      return db.prepare(`
+    } else if (database) {
+      return database.prepare(`
         INSERT INTO customers (
           id, business_name, main_email, main_contact_rep, phone, asi_number,
           business_type, years_in_business, ein_number_encrypted, estimated_annual_business,
@@ -186,8 +210,9 @@ export const customerQueries = {
   },
 
   getAll: async () => {
-    if (isProduction && pgPool) {
-      const client = await pgPool.connect();
+    const database = getDatabase();
+    if (isProduction && database) {
+      const client = await database.connect();
       try {
         const result = await client.query(`
           SELECT * FROM customers ORDER BY submission_date DESC
@@ -196,8 +221,8 @@ export const customerQueries = {
       } finally {
         client.release();
       }
-    } else if (db) {
-      return db.prepare(`
+    } else if (database) {
+      return database.prepare(`
         SELECT * FROM customers ORDER BY submission_date DESC
       `).all();
     }
@@ -205,8 +230,9 @@ export const customerQueries = {
   },
 
   getById: async (id: string) => {
-    if (isProduction && pgPool) {
-      const client = await pgPool.connect();
+    const database = getDatabase();
+    if (isProduction && database) {
+      const client = await database.connect();
       try {
         const result = await client.query(`
           SELECT * FROM customers WHERE id = $1
@@ -215,8 +241,8 @@ export const customerQueries = {
       } finally {
         client.release();
       }
-    } else if (db) {
-      return db.prepare(`
+    } else if (database) {
+      return database.prepare(`
         SELECT * FROM customers WHERE id = ?
       `).get(id);
     }
@@ -224,8 +250,9 @@ export const customerQueries = {
   },
 
   updateStatus: async (status: string, id: string) => {
-    if (isProduction && pgPool) {
-      const client = await pgPool.connect();
+    const database = getDatabase();
+    if (isProduction && database) {
+      const client = await database.connect();
       try {
         const result = await client.query(`
           UPDATE customers SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2
@@ -234,8 +261,8 @@ export const customerQueries = {
       } finally {
         client.release();
       }
-    } else if (db) {
-      return db.prepare(`
+    } else if (database) {
+      return database.prepare(`
         UPDATE customers SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
       `).run(status, id);
     }
@@ -245,8 +272,9 @@ export const customerQueries = {
 // Admin user operations
 export const adminQueries = {
   insert: async (id: string, email: string, passwordHash: string, name: string) => {
-    if (isProduction && pgPool) {
-      const client = await pgPool.connect();
+    const database = getDatabase();
+    if (isProduction && database) {
+      const client = await database.connect();
       try {
         const result = await client.query(`
           INSERT INTO admin_users (id, email, password_hash, name) VALUES ($1, $2, $3, $4)
@@ -255,16 +283,17 @@ export const adminQueries = {
       } finally {
         client.release();
       }
-    } else if (db) {
-      return db.prepare(`
+    } else if (database) {
+      return database.prepare(`
         INSERT INTO admin_users (id, email, password_hash, name) VALUES (?, ?, ?, ?)
       `).run(id, email, passwordHash, name);
     }
   },
 
   getByEmail: async (email: string) => {
-    if (isProduction && pgPool) {
-      const client = await pgPool.connect();
+    const database = getDatabase();
+    if (isProduction && database) {
+      const client = await database.connect();
       try {
         const result = await client.query(`
           SELECT * FROM admin_users WHERE email = $1
@@ -273,8 +302,8 @@ export const adminQueries = {
       } finally {
         client.release();
       }
-    } else if (db) {
-      return db.prepare(`
+    } else if (database) {
+      return database.prepare(`
         SELECT * FROM admin_users WHERE email = ?
       `).get(email);
     }
@@ -282,8 +311,9 @@ export const adminQueries = {
   },
 
   updateLastLogin: async (id: string) => {
-    if (isProduction && pgPool) {
-      const client = await pgPool.connect();
+    const database = getDatabase();
+    if (isProduction && database) {
+      const client = await database.connect();
       try {
         const result = await client.query(`
           UPDATE admin_users SET last_login = CURRENT_TIMESTAMP WHERE id = $1
@@ -292,8 +322,8 @@ export const adminQueries = {
       } finally {
         client.release();
       }
-    } else if (db) {
-      return db.prepare(`
+    } else if (database) {
+      return database.prepare(`
         UPDATE admin_users SET last_login = CURRENT_TIMESTAMP WHERE id = ?
       `).run(id);
     }

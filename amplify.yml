@@ -7,6 +7,8 @@ frontend:
         - echo "Installing dependencies..."
     build:
       commands:
+        - echo "Setting build environment variables..."
+        - export BUILD_TIME=true
         - echo "Building Next.js application..."
         - npm run build
         - echo "Build completed successfully"

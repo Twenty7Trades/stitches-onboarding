@@ -33,7 +33,7 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
   const nextStep = async () => {
     setValidationErrors([]);
     let isValid = false;
-    let errorMessages: string[] = [];
+    const errorMessages: string[] = [];
     
     switch (currentStep) {
       case 1:

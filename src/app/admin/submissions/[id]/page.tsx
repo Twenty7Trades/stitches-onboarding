@@ -55,12 +55,13 @@ interface Customer {
   updated_at: string;
 }
 
-export default function SubmissionDetailPage({ params }: { params: { id: string } }) {
+export default function SubmissionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [customerId, setCustomerId] = useState<string>('');
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
@@ -70,14 +71,22 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
   }, [status, router]);
 
   useEffect(() => {
-    if (session) {
+    const resolveParams = async () => {
+      const resolvedParams = await params;
+      setCustomerId(resolvedParams.id);
+    };
+    resolveParams();
+  }, [params]);
+
+  useEffect(() => {
+    if (session && customerId) {
       fetchCustomer();
     }
-  }, [session, params.id]);
+  }, [session, customerId]);
 
   const fetchCustomer = async () => {
     try {
-      const response = await fetch(`/api/admin/submissions/${params.id}`);
+      const response = await fetch(`/api/admin/submissions/${customerId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch customer');
       }
@@ -96,7 +105,7 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
     
     setIsUpdating(true);
     try {
-      const response = await fetch(`/api/admin/submissions/${params.id}`, {
+      const response = await fetch(`/api/admin/submissions/${customerId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

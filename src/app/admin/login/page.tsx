@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,22 +24,20 @@ export default function AdminLoginPage() {
     setError('');
 
     try {
-      const result = await signIn('credentials', {
-        email: data.email,
-        password: data.password,
-        redirect: false,
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
       });
 
-      if (result?.error) {
-        setError('Invalid email or password');
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        router.push('/admin');
       } else {
-        // Check if session was created successfully
-        const session = await getSession();
-        if (session) {
-          router.push('/admin');
-        } else {
-          setError('Login failed. Please try again.');
-        }
+        setError(result.error || 'Invalid email or password');
       }
     } catch {
       setError('An error occurred. Please try again.');

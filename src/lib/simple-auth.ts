@@ -35,13 +35,13 @@ export function generateToken(user: AdminUser): string {
 
 export function verifyToken(token: string): AdminUser | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: string; email: string; name: string };
     return {
       id: decoded.id,
       email: decoded.email,
       name: decoded.name
     };
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -103,7 +103,7 @@ export async function getCurrentUserFromRequest(request: NextRequest): Promise<A
   }
 }
 
-export function setAuthCookie(token: string): void {
+export function setAuthCookie(): void {
   // This will be handled by the API route
 }
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { getCurrentUserFromRequest } from '@/lib/simple-auth';
 import { customerQueries } from '@/lib/db';
 import { decrypt } from '@/lib/encryption';
 import { generateCSVBuffer } from '@/lib/csv-export';
@@ -15,9 +15,9 @@ interface Customer {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
+    const user = await getCurrentUserFromRequest(request);
     
-    if (!session) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

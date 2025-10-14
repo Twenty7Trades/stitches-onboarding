@@ -1,12 +1,12 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { getCurrentUserFromRequest } from '@/lib/simple-auth';
 import { customerQueries } from '@/lib/db';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
+    const user = await getCurrentUserFromRequest(request);
     
-    if (!session) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

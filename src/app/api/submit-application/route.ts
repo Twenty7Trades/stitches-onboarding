@@ -65,7 +65,11 @@ export async function POST(request: NextRequest) {
       paymentAccountLast4 || '',
       paymentAccountType || '',
       encryptedAuthorizations,
-      validatedData.signature.signature
+      validatedData.signature.signature,
+      'pending', // status
+      new Date().toISOString(), // submission_date
+      new Date().toISOString(), // created_at
+      new Date().toISOString()  // updated_at
     ]);
 
     // Generate CSV data for download

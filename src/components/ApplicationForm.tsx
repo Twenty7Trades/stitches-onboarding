@@ -536,7 +536,10 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
             </div>
 
             <SignatureCanvasComponent
-              onSignatureChange={setSignature}
+              onSignatureChange={(sig) => {
+                console.log('Signature changed, length:', sig.length);
+                setSignature(sig);
+              }}
               value={signature}
             />
           </div>
@@ -562,14 +565,19 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
               Next
             </button>
           ) : (
-            <button
-              type="submit"
-              disabled={isLoading || signature.length === 0}
-              onClick={() => console.log('Submit button clicked, isLoading:', isLoading, 'signature.length:', signature.length)}
-              className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Submitting...' : 'Submit Application'}
-            </button>
+            <div>
+              <div className="mb-2 text-sm text-gray-600">
+                Debug: isLoading={isLoading ? 'true' : 'false'}, signature.length={signature.length}
+              </div>
+              <button
+                type="submit"
+                disabled={isLoading || signature.length === 0}
+                onClick={() => console.log('Submit button clicked, isLoading:', isLoading, 'signature.length:', signature.length)}
+                className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? 'Submitting...' : 'Submit Application'}
+              </button>
+            </div>
           )}
         </div>
       </form>

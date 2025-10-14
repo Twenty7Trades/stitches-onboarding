@@ -5,6 +5,18 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+interface PaymentAuthorizations {
+  accountHolderName?: string;
+  accountType?: string;
+  routingNumber?: string;
+  accountNumber?: string;
+  cardholderName?: string;
+  cardType?: string;
+  cardNumber?: string;
+  expirationDate?: string;
+  billingZipCode?: string;
+}
+
 interface Customer {
   id: string;
   business_name: string;
@@ -35,7 +47,7 @@ interface Customer {
   payment_card_type?: string;
   payment_account_last4?: string;
   payment_account_type?: string;
-  payment_authorizations_decrypted?: Record<string, unknown>;
+  payment_authorizations_decrypted?: PaymentAuthorizations;
   signature_data: string;
   status: string;
   submission_date: string;
@@ -323,19 +335,19 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Account Holder Name</label>
-                            <p className="text-sm text-gray-900">{(customer.payment_authorizations_decrypted as any)?.accountHolderName || 'N/A'}</p>
+                            <p className="text-sm text-gray-900">{customer.payment_authorizations_decrypted?.accountHolderName || 'N/A'}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Account Type</label>
-                            <p className="text-sm text-gray-900">{(customer.payment_authorizations_decrypted as any)?.accountType || 'N/A'}</p>
+                            <p className="text-sm text-gray-900">{customer.payment_authorizations_decrypted?.accountType || 'N/A'}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Routing Number</label>
-                            <p className="text-sm text-gray-900">{(customer.payment_authorizations_decrypted as any)?.routingNumber || 'N/A'}</p>
+                            <p className="text-sm text-gray-900">{customer.payment_authorizations_decrypted?.routingNumber || 'N/A'}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Account Number</label>
-                            <p className="text-sm text-gray-900">{maskAccountNumber((customer.payment_authorizations_decrypted as any)?.accountNumber || '')}</p>
+                            <p className="text-sm text-gray-900">{maskAccountNumber(customer.payment_authorizations_decrypted?.accountNumber || '')}</p>
                           </div>
                         </div>
                       )}
@@ -344,19 +356,19 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Cardholder Name</label>
-                            <p className="text-sm text-gray-900">{(customer.payment_authorizations_decrypted as any)?.cardholderName || 'N/A'}</p>
+                            <p className="text-sm text-gray-900">{customer.payment_authorizations_decrypted?.cardholderName || 'N/A'}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Card Type</label>
-                            <p className="text-sm text-gray-900">{(customer.payment_authorizations_decrypted as any)?.cardType || 'N/A'}</p>
+                            <p className="text-sm text-gray-900">{customer.payment_authorizations_decrypted?.cardType || 'N/A'}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Card Number</label>
-                            <p className="text-sm text-gray-900">{maskCardNumber((customer.payment_authorizations_decrypted as any)?.cardNumber || '')}</p>
+                            <p className="text-sm text-gray-900">{maskCardNumber(customer.payment_authorizations_decrypted?.cardNumber || '')}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Expiration Date</label>
-                            <p className="text-sm text-gray-900">{(customer.payment_authorizations_decrypted as any)?.expirationDate || 'N/A'}</p>
+                            <p className="text-sm text-gray-900">{customer.payment_authorizations_decrypted?.expirationDate || 'N/A'}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">CVC Number</label>
@@ -364,7 +376,7 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Billing Zip Code</label>
-                            <p className="text-sm text-gray-900">{(customer.payment_authorizations_decrypted as any)?.billingZipCode || 'N/A'}</p>
+                            <p className="text-sm text-gray-900">{customer.payment_authorizations_decrypted?.billingZipCode || 'N/A'}</p>
                           </div>
                         </div>
                       )}

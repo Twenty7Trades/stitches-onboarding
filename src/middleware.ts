@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getCurrentUserFromRequest } from '@/lib/simple-auth';
 
 export async function middleware(request: NextRequest) {
   // Check if the request is for an admin route
@@ -10,11 +9,11 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
     
-    // Check authentication for other admin routes
-    const user = await getCurrentUserFromRequest(request);
+    // For other admin routes, check if there's an auth cookie
+    const token = request.cookies.get('admin-token')?.value;
     
-    // Redirect to login if not authenticated
-    if (!user) {
+    // Redirect to login if no token
+    if (!token) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }

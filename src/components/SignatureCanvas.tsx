@@ -47,7 +47,7 @@ export default function SignatureCanvasComponent({
         </p>
       </div>
       
-      <div className="border border-gray-200 rounded bg-white relative overflow-hidden" style={{ width: '100%', height: '150px' }}>
+      <div className="border border-gray-200 rounded bg-white relative" style={{ width: '100%', height: '150px' }}>
         <SignatureCanvas
           ref={sigPad}
           canvasProps={{
@@ -60,14 +60,9 @@ export default function SignatureCanvasComponent({
               padding: '0',
               border: 'none',
               outline: 'none',
-              position: 'absolute',
-              top: '0',
-              left: '0',
               width: '100%',
               height: '100%',
-              touchAction: 'none',
-              transform: 'scale(0.5)',
-              transformOrigin: 'top left'
+              touchAction: 'none'
             }
           }}
           onEnd={handleEnd}

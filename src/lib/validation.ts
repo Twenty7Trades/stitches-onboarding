@@ -5,13 +5,21 @@ export const businessInfoSchema = z.object({
   businessName: z.string().min(1, 'Business name is required'),
   mainEmail: z.string().email('Valid email is required'),
   mainContactRep: z.string().min(1, 'Main contact rep is required'),
-  phone: z.string().min(10, 'Valid phone number is required'),
+  phone: z.string().refine((val) => {
+    // Remove all non-digit characters and check if it's 10 digits
+    const cleaned = val.replace(/\D/g, '');
+    return cleaned.length === 10;
+  }, 'Valid phone number is required (10 digits)'),
   asiNumber: z.string().optional(),
-  businessType: z.enum(['Corp.', 'Partnership', 'Sole Prop.', 'LLC.', 'NA'], {
+  businessType: z.enum(['Corp.', 'Partnership', 'Sole Prop.', 'LLC.'], {
     message: 'Please select a business type'
   }),
   yearsInBusiness: z.number().min(0, 'Years in business must be 0 or greater'),
-  einNumber: z.string().min(9, 'EIN must be 9 digits').max(9, 'EIN must be 9 digits'),
+  einNumber: z.string().refine((val) => {
+    // Remove dashes and spaces, then check if it's exactly 9 digits
+    const cleaned = val.replace(/[-\s]/g, '');
+    return /^\d{9}$/.test(cleaned);
+  }, 'EIN must be 9 digits (format: XX-XXXXXXX or XXXXXXXXX)'),
   estimatedAnnualBusiness: z.number().min(0, 'Estimated annual business must be 0 or greater'),
   averageOrderSize: z.number().min(1, 'Average order size must be at least 1')
 });
@@ -23,7 +31,11 @@ export const billingInfoSchema = z.object({
   billingState: z.string().min(2, 'Billing state is required'),
   billingZip: z.string().min(5, 'Valid zip code is required'),
   billingContact: z.string().min(1, 'Billing contact is required'),
-  billingPhone: z.string().min(10, 'Valid billing phone is required'),
+  billingPhone: z.string().refine((val) => {
+    // Remove all non-digit characters and check if it's 10 digits
+    const cleaned = val.replace(/\D/g, '');
+    return cleaned.length === 10;
+  }, 'Valid billing phone is required (10 digits)'),
   billingEmail: z.string().email('Valid billing email is required')
 });
 
@@ -34,7 +46,11 @@ export const shippingInfoSchema = z.object({
   shippingState: z.string().min(2, 'Shipping state is required'),
   shippingZip: z.string().min(5, 'Valid shipping zip is required'),
   shippingContact: z.string().min(1, 'Shipping contact is required'),
-  shippingPhone: z.string().min(10, 'Valid shipping phone is required')
+  shippingPhone: z.string().refine((val) => {
+    // Remove all non-digit characters and check if it's 10 digits
+    const cleaned = val.replace(/\D/g, '');
+    return cleaned.length === 10;
+  }, 'Valid shipping phone is required (10 digits)')
 });
 
 // ACH Payment Schema

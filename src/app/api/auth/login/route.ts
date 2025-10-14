@@ -4,6 +4,7 @@ import { authenticateUser, generateToken } from '@/lib/simple-auth';
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
+    console.log('Login attempt for email:', email);
 
     if (!email || !password) {
       return NextResponse.json(
@@ -12,7 +13,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('Calling authenticateUser...');
     const user = await authenticateUser(email, password);
+    console.log('AuthenticateUser result:', user ? 'User found' : 'User not found');
     
     if (!user) {
       return NextResponse.json(

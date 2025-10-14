@@ -48,13 +48,21 @@ export function verifyToken(token: string): AdminUser | null {
 
 export async function authenticateUser(email: string, password: string): Promise<AdminUser | null> {
   try {
+    console.log('authenticateUser: Looking for user with email:', email);
     const user = await adminQueries.getByEmail(email);
+    console.log('authenticateUser: User found:', user ? 'Yes' : 'No');
+    
     if (!user) {
+      console.log('authenticateUser: User not found in database');
       return null;
     }
 
+    console.log('authenticateUser: Verifying password...');
     const isValid = await verifyPassword(password, user.password_hash);
+    console.log('authenticateUser: Password valid:', isValid);
+    
     if (!isValid) {
+      console.log('authenticateUser: Invalid password');
       return null;
     }
 

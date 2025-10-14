@@ -10,7 +10,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const customers = customerQueries.getAll();
+    const customers = await customerQueries.getAll();
     
     return NextResponse.json({
       success: true,

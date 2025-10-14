@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const encryptedAuthorizations = encrypt(JSON.stringify(validatedData.paymentDetails));
 
     // Insert into database
-    customerQueries.insert([
+    await customerQueries.insert([
       customerId,
       validatedData.businessInfo.businessName,
       validatedData.businessInfo.mainEmail,

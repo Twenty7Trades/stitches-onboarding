@@ -16,7 +16,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        const user = adminQueries.getByEmail(credentials.email);
+        const user = await adminQueries.getByEmail(credentials.email);
         if (!user) {
           return null;
         }
@@ -27,7 +27,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         // Update last login
-        adminQueries.updateLastLogin(user.id);
+        await adminQueries.updateLastLogin(user.id);
 
         return {
           id: user.id,

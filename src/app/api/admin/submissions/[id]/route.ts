@@ -15,7 +15,7 @@ export async function GET(
     }
 
     const { id } = await params;
-    const customer = customerQueries.getById(id);
+    const customer = await customerQueries.getById(id);
     
     if (!customer) {
       return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
@@ -75,7 +75,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     }
 
-    customerQueries.updateStatus(status, id);
+    await customerQueries.updateStatus(status, id);
 
     return NextResponse.json({
       success: true,

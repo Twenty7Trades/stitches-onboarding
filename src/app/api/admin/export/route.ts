@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid format' }, { status: 400 });
     }
 
-    const customers = customerQueries.getAll();
+    const customers = await customerQueries.getAll();
 
     if (format === 'json') {
       // For JSON export, include decrypted data

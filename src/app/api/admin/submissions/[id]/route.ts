@@ -75,7 +75,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     }
 
-    customerQueries.updateStatus(status, params.id);
+    customerQueries.updateStatus(status, id);
 
     return NextResponse.json({
       success: true,

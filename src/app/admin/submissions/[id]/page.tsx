@@ -323,19 +323,19 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Account Holder Name</label>
-                            <p className="text-sm text-gray-900">{customer.payment_authorizations_decrypted.accountHolderName}</p>
+                            <p className="text-sm text-gray-900">{(customer.payment_authorizations_decrypted as any)?.accountHolderName || 'N/A'}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Account Type</label>
-                            <p className="text-sm text-gray-900">{customer.payment_authorizations_decrypted.accountType}</p>
+                            <p className="text-sm text-gray-900">{(customer.payment_authorizations_decrypted as any)?.accountType || 'N/A'}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Routing Number</label>
-                            <p className="text-sm text-gray-900">{customer.payment_authorizations_decrypted.routingNumber}</p>
+                            <p className="text-sm text-gray-900">{(customer.payment_authorizations_decrypted as any)?.routingNumber || 'N/A'}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Account Number</label>
-                            <p className="text-sm text-gray-900">{maskAccountNumber(customer.payment_authorizations_decrypted.accountNumber)}</p>
+                            <p className="text-sm text-gray-900">{maskAccountNumber((customer.payment_authorizations_decrypted as any)?.accountNumber || '')}</p>
                           </div>
                         </div>
                       )}
@@ -344,19 +344,19 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Cardholder Name</label>
-                            <p className="text-sm text-gray-900">{customer.payment_authorizations_decrypted.cardholderName}</p>
+                            <p className="text-sm text-gray-900">{(customer.payment_authorizations_decrypted as any)?.cardholderName || 'N/A'}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Card Type</label>
-                            <p className="text-sm text-gray-900">{customer.payment_authorizations_decrypted.cardType}</p>
+                            <p className="text-sm text-gray-900">{(customer.payment_authorizations_decrypted as any)?.cardType || 'N/A'}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Card Number</label>
-                            <p className="text-sm text-gray-900">{maskCardNumber(customer.payment_authorizations_decrypted.cardNumber)}</p>
+                            <p className="text-sm text-gray-900">{maskCardNumber((customer.payment_authorizations_decrypted as any)?.cardNumber || '')}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Expiration Date</label>
-                            <p className="text-sm text-gray-900">{customer.payment_authorizations_decrypted.expirationDate}</p>
+                            <p className="text-sm text-gray-900">{(customer.payment_authorizations_decrypted as any)?.expirationDate || 'N/A'}</p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">CVC Number</label>
@@ -364,7 +364,7 @@ export default function SubmissionDetailPage({ params }: { params: { id: string 
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Billing Zip Code</label>
-                            <p className="text-sm text-gray-900">{customer.payment_authorizations_decrypted.billingZipCode}</p>
+                            <p className="text-sm text-gray-900">{(customer.payment_authorizations_decrypted as any)?.billingZipCode || 'N/A'}</p>
                           </div>
                         </div>
                       )}

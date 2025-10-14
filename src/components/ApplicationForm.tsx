@@ -131,11 +131,7 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
         </div>
       </div>
 
-      <form onSubmit={(e) => {
-        console.log('Form onSubmit event triggered');
-        console.log('Form data:', e);
-        handleSubmit(onFormSubmit)(e);
-      }} className="space-y-8">
+      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-8">
         {/* Validation Error Display */}
         {validationErrors.length > 0 && (
           <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
@@ -574,16 +570,31 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
                 Debug: isLoading={isLoading ? 'true' : 'false'}, signature.length={signature.length}
               </div>
               <button
-                type="submit"
-                disabled={isLoading || signature.length === 0}
-                onClick={() => {
-                  console.log('Submit button clicked, isLoading:', isLoading, 'signature.length:', signature.length);
-                  console.log('Current form values:', watch());
-                  console.log('Form errors:', errors);
+                type="button"
+                onClick={async () => {
+                  console.log('Manual submit button clicked');
+                  const formData = watch();
+                  console.log('Manual form data:', formData);
+                  console.log('Manual signature length:', signature.length);
+                  
+                  if (signature.length === 0) {
+                    console.log('No signature, cannot submit');
+                    setValidationErrors(['Please provide your digital signature']);
+                    return;
+                  }
+                  
+                  try {
+                    console.log('Calling onFormSubmit manually...');
+                    await onFormSubmit(formData);
+                    console.log('Manual submission successful');
+                  } catch (error) {
+                    console.error('Manual submission error:', error);
+                    setValidationErrors(['There was an error submitting your application. Please try again.']);
+                  }
                 }}
-                className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
               >
-                {isLoading ? 'Submitting...' : 'Submit Application'}
+                Submit Application (Manual)
               </button>
             </div>
           )}

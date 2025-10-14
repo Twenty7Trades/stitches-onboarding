@@ -131,7 +131,11 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-8">
+      <form onSubmit={(e) => {
+        console.log('Form onSubmit event triggered');
+        console.log('Form data:', e);
+        handleSubmit(onFormSubmit)(e);
+      }} className="space-y-8">
         {/* Validation Error Display */}
         {validationErrors.length > 0 && (
           <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
@@ -572,7 +576,11 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
               <button
                 type="submit"
                 disabled={isLoading || signature.length === 0}
-                onClick={() => console.log('Submit button clicked, isLoading:', isLoading, 'signature.length:', signature.length)}
+                onClick={() => {
+                  console.log('Submit button clicked, isLoading:', isLoading, 'signature.length:', signature.length);
+                  console.log('Current form values:', watch());
+                  console.log('Form errors:', errors);
+                }}
                 className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Submitting...' : 'Submit Application'}

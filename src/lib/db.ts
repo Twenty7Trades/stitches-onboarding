@@ -191,8 +191,8 @@ export const customerQueries = {
           billing_contact, billing_phone, billing_email, shipping_address, shipping_city,
           shipping_state, shipping_zip, shipping_contact, shipping_phone, payment_method,
           payment_card_last4, payment_card_type, payment_account_last4, payment_account_type,
-          payment_authorizations_encrypted, signature_data, status, submission_date, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          payment_authorizations_encrypted, signature_data
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(...data);
     }
   },

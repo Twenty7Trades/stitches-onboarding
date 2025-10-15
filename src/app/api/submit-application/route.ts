@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     // Generate CSV data for download
     const csvData = generateCSVData(validatedData);
     const csvBuffer = generateCSVBuffer([csvData]);
-    const csvBase64 = csvBuffer.toString('base64');
+    const csvContent = csvBuffer.toString('utf-8');
 
     // Send email notification to admin
     try {
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       customerId,
-      csvData: csvBase64
+      csvData: csvContent
     });
 
   } catch (error) {

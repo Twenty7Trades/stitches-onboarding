@@ -9,7 +9,21 @@ const nextConfig: NextConfig = {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
     BUILD_TIME: process.env.BUILD_TIME,
-  }
+  },
+  async headers() {
+    return [
+      {
+        // Allow iframe embedding for WordPress integration
+        source: '/embed/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors *;",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

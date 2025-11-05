@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
       new Date().toISOString(), // created_at
       new Date().toISOString()  // updated_at
     ]);
+    console.log('Customer inserted successfully, ID:', customerId);
 
     // Generate PDF for download (masked for customer)
     let pdfBuffer: Buffer;

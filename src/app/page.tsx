@@ -39,15 +39,26 @@ export default function HomePage() {
 
       const result = await response.json();
       
-      // Create download URL for PDF
-      const pdfData = atob(result.pdfData);
-      const pdfBytes = new Uint8Array(pdfData.length);
-      for (let i = 0; i < pdfData.length; i++) {
-        pdfBytes[i] = pdfData.charCodeAt(i);
+      // Check if pdfData exists in response
+      if (!result.pdfData) {
+        console.error('No pdfData in response:', result);
+        throw new Error('PDF generation failed - no PDF data received');
       }
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      setPdfDownloadUrl(url);
+      
+      // Create download URL for PDF
+      try {
+        const pdfData = atob(result.pdfData);
+        const pdfBytes = new Uint8Array(pdfData.length);
+        for (let i = 0; i < pdfData.length; i++) {
+          pdfBytes[i] = pdfData.charCodeAt(i);
+        }
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        setPdfDownloadUrl(url);
+      } catch (pdfError) {
+        console.error('Error processing PDF data:', pdfError);
+        throw new Error('Failed to process PDF data');
+      }
       
       setIsSubmitted(true);
     } catch (error) {

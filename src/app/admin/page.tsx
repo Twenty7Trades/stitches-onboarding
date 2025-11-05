@@ -60,12 +60,15 @@ export default function AdminDashboard() {
     try {
       const response = await fetch('/api/admin/submissions');
       if (!response.ok) {
-        throw new Error('Failed to fetch customers');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.details || errorData.error || 'Failed to fetch customers');
       }
       const data = await response.json();
-      setCustomers(data.customers);
+      console.log('Fetched customers:', data.customers?.length || 0);
+      setCustomers(data.customers || []);
     } catch (error) {
-      setError('Failed to load customer data');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load customer data';
+      setError(errorMessage);
       console.error('Error fetching customers:', error);
     } finally {
       setIsLoading(false);

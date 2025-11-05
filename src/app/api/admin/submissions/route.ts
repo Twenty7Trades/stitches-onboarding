@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUserFromRequest } from '@/lib/simple-auth';
-import { customerQueries } from '@/lib/db';
+import { customerQueries, initializeDatabase } from '@/lib/db';
 
 export async function GET(request: NextRequest) {
   try {
+    // Ensure database is initialized
+    await initializeDatabase();
+    
     const user = await getCurrentUserFromRequest(request);
     
     if (!user) {

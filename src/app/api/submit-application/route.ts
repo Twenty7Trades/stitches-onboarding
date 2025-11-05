@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { applicationSchema, Application } from '@/lib/validation';
-import { customerQueries, uuidv4 } from '@/lib/db';
+import { customerQueries, uuidv4, initializeDatabase } from '@/lib/db';
 import { encrypt, getLast4Digits } from '@/lib/encryption';
 import { generatePDFBuffer } from '@/lib/pdf-export';
 import nodemailer from 'nodemailer';
 
 export async function POST(request: NextRequest) {
   try {
+    // Ensure database is initialized
+    await initializeDatabase();
+    
     const body = await request.json();
     const validatedData = applicationSchema.parse(body);
 

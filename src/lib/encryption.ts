@@ -25,3 +25,4 @@ export function getLast4Digits(number: string): string {
   if (!number || number.length < 4) return '';
   return number.slice(-4);
 }
+

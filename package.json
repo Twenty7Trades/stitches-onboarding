@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "notes:init": "node notes-agent/notes-agent.js init",
+    "notes:update": "node notes-agent/notes-agent.js update",
+    "notes:session": "node notes-agent/notes-agent.js session",
+    "notes:note": "node notes-agent/notes-agent.js note",
+    "notes:summary": "node notes-agent/notes-agent.js summary"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.0",
@@ -16,6 +21,7 @@
     "@types/crypto-js": "^4.2.2",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/nodemailer": "^7.0.2",
+    "@types/pdfkit": "^0.17.3",
     "@types/pg": "^8.15.5",
     "@types/react-signature-canvas": "^1.0.7",
     "@types/uuid": "^10.0.0",
@@ -28,6 +34,7 @@
     "next": "15.5.5",
     "next-auth": "^5.0.0-beta.29",
     "nodemailer": "^6.10.1",
+    "pdfkit": "^0.17.2",
     "pg": "^8.16.3",
     "postcss": "^8.4.49",
     "react": "19.1.0",

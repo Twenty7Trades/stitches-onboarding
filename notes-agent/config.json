@@ -1,0 +1,51 @@
+{
+  "projectName": "stitches-onboarding",
+  "projectType": "Next.js",
+  "urls": {
+    "production": "https://main.d3t8wpufosawhp.amplifyapp.com/",
+    "embed": "https://main.d3t8wpufosawhp.amplifyapp.com/embed",
+    "admin": "https://main.d3t8wpufosawhp.amplifyapp.com/admin"
+  },
+  "credentials": {
+    "adminEmail": {
+      "location": "AWS Amplify Environment Variables",
+      "note": "sales@pixelprint.la"
+    },
+    "smtp": {
+      "location": "AWS Amplify Environment Variables",
+      "note": "See AWS_AMPLIFY_SMTP_SETUP.md"
+    }
+  },
+  "deployment": {
+    "platform": "AWS Amplify",
+    "appId": "d3t8wpufosawhp",
+    "region": "us-east-1",
+    "envLocation": "AWS Amplify Console > Environment Variables",
+    "status": "Active"
+  },
+  "notes": [],
+  "sessions": [],
+  "deployments": [],
+  "troubleshooting": [],
+  "commands": [
+    "npm run dev",
+    "npm run build",
+    "aws amplify list-jobs --app-id d3t8wpufosawhp --branch-name main --region us-east-1"
+  ],
+  "documentation": [
+    {
+      "title": "SMTP Setup",
+      "path": "AWS_AMPLIFY_SMTP_SETUP.md"
+    },
+    {
+      "title": "WordPress Integration",
+      "path": "WORDPRESS_INTEGRATION.md"
+    },
+    {
+      "title": "Local SMTP Setup",
+      "path": "SMTP_SETUP.md"
+    }
+  ]
+}
+
+

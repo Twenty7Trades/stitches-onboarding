@@ -308,3 +308,6 @@ If you need help with the integration, contact:
 - Email: Info@StitchesClothingCo.com
 - Phone: (775) 355-9161
 
+
+
+

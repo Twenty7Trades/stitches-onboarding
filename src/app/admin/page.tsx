@@ -72,29 +72,25 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleStatusUpdate = async (customerId: string, status: string) => {
+  const handleDownloadPDF = async (customerId: string) => {
     try {
-      const response = await fetch(`/api/admin/submissions/${customerId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status }),
-      });
-
+      const response = await fetch(`/api/admin/submissions/${customerId}/pdf`);
       if (!response.ok) {
-        throw new Error('Failed to update status');
+        throw new Error('Failed to download PDF');
       }
 
-      // Update local state
-      setCustomers(customers.map(customer => 
-        customer.id === customerId 
-          ? { ...customer, status }
-          : customer
-      ));
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `stitches-application-${customerId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error updating status:', error);
-      alert('Failed to update status. Please try again.');
+      console.error('Error downloading PDF:', error);
+      alert('Failed to download PDF. Please try again.');
     }
   };
 
@@ -106,27 +102,6 @@ export default function AdminDashboard() {
       console.error('Logout error:', error);
       // Still redirect even if logout fails
       router.push('/admin/login');
-    }
-  };
-  const handleExport = async (format: 'csv' | 'json') => {
-    try {
-      const response = await fetch(`/api/admin/export?format=${format}`);
-      if (!response.ok) {
-        throw new Error('Failed to export data');
-      }
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `stitches-customers.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error exporting data:', error);
-      alert('Failed to export data. Please try again.');
     }
   };
 
@@ -215,7 +190,7 @@ export default function AdminDashboard() {
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">Pending</dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        {customers.filter(c => c.status === 'pending').length}
+                        {customers.filter((c: any) => c.status === 'pending').length}
                       </dd>
                     </dl>
                   </div>
@@ -237,7 +212,7 @@ export default function AdminDashboard() {
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">Approved</dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        {customers.filter(c => c.status === 'approved').length}
+                        {customers.filter((c: any) => c.status === 'approved').length}
                       </dd>
                     </dl>
                   </div>
@@ -259,7 +234,7 @@ export default function AdminDashboard() {
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">Rejected</dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        {customers.filter(c => c.status === 'rejected').length}
+                        {customers.filter((c: any) => c.status === 'rejected').length}
                       </dd>
                     </dl>
                   </div>
@@ -271,8 +246,7 @@ export default function AdminDashboard() {
           {/* Submissions List */}
           <SubmissionsList
             customers={customers}
-            onStatusUpdate={handleStatusUpdate}
-            onExport={handleExport}
+            onDownloadPDF={handleDownloadPDF}
           />
         </div>
       </main>

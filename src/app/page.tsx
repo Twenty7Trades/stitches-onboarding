@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import ApplicationForm from '@/components/ApplicationForm';
+import Navigation from '@/components/Navigation';
 import { Application } from '@/lib/validation';
 
 export default function HomePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [csvDownloadUrl, setCsvDownloadUrl] = useState<string | null>(null);
+  const [pdfDownloadUrl, setPdfDownloadUrl] = useState<string | null>(null);
 
   const handleSubmit = async (data: Application) => {
     setIsSubmitting(true);
@@ -39,10 +39,15 @@ export default function HomePage() {
 
       const result = await response.json();
       
-      // Create download URL for CSV
-      const blob = new Blob([result.csvData], { type: 'text/csv' });
+      // Create download URL for PDF
+      const pdfData = atob(result.pdfData);
+      const pdfBytes = new Uint8Array(pdfData.length);
+      for (let i = 0; i < pdfData.length; i++) {
+        pdfBytes[i] = pdfData.charCodeAt(i);
+      }
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
-      setCsvDownloadUrl(url);
+      setPdfDownloadUrl(url);
       
       setIsSubmitted(true);
     } catch (error) {
@@ -74,17 +79,17 @@ export default function HomePage() {
               Thank you for your application. We have received your information and will review it shortly.
             </p>
 
-            {csvDownloadUrl && (
+            {pdfDownloadUrl && (
               <div className="mb-6">
                 <a
-                  href={csvDownloadUrl}
-                  download="stitches-application.csv"
+                  href={pdfDownloadUrl}
+                  download="stitches-application.pdf"
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  Download Application CSV
+                  Download Application PDF
                 </a>
               </div>
             )}
@@ -102,35 +107,12 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <Link href="/" className="flex items-center">
-                <img 
-                  src="/stitches-logo.webp" 
-                  alt="Stitches Clothing Co Logo" 
-                  className="h-10 w-auto"
-                />
-              </Link>
-            </div>
-            <nav className="flex space-x-8">
-              <Link
-                href="/terms"
-                className="text-gray-600 hover:text-gray-900 text-sm font-medium"
-              >
-                Terms & Conditions
-              </Link>
-              <Link
-                href="/pricing-details"
-                className="text-gray-600 hover:text-gray-900 text-sm font-medium"
-              >
-                Pricing Details
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Navigation 
+        links={[
+          { href: '/terms', label: 'Terms & Conditions' },
+          { href: '/pricing-details', label: 'Pricing Details' },
+        ]}
+      />
 
       {/* Main Content */}
       <main className="py-12">

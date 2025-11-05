@@ -1,39 +1,18 @@
+'use client';
+
 import React from 'react';
-import Link from 'next/link';
+import Navigation from '@/components/Navigation';
 
 export default function PricingDetailsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-8">
-            <div className="flex items-center">
-              <Link href="/" className="flex items-center">
-                <img 
-                  src="/stitches-logo.webp" 
-                  alt="Stitches Clothing Co Logo" 
-                  className="h-16 w-auto"
-                />
-              </Link>
-            </div>
-            <nav className="flex space-x-8">
-              <Link
-                href="/"
-                className="text-gray-600 hover:text-gray-900 text-sm font-medium"
-              >
-                Application
-              </Link>
-              <Link
-                href="/terms"
-                className="text-gray-600 hover:text-gray-900 text-sm font-medium"
-              >
-                Terms & Conditions
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Navigation 
+        links={[
+          { href: '/', label: 'Application' },
+          { href: '/terms', label: 'Terms & Conditions' },
+        ]}
+      />
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:px-8">

@@ -63,6 +63,8 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
   const [error, setError] = useState('');
   const [customerId, setCustomerId] = useState<string>('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isPaymentRevealed, setIsPaymentRevealed] = useState(false);
+  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -97,6 +99,32 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
       console.error('Error fetching customer:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!customer) return;
+    setIsDownloadingPDF(true);
+    try {
+      const response = await fetch(`/api/admin/submissions/${customerId}/pdf`);
+      if (!response.ok) {
+        throw new Error('Failed to download PDF');
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `stitches-application-${customerId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      alert('Failed to download PDF. Please try again.');
+    } finally {
+      setIsDownloadingPDF(false);
     }
   };
 
@@ -330,7 +358,34 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
 
               {/* Payment Information */}
               <div className="bg-white shadow rounded-lg p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Information</h2>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold text-gray-900">Payment Information</h2>
+                  {!isPaymentRevealed && (
+                    <button
+                      onClick={() => {
+                        if (confirm('Are you sure you want to reveal sensitive payment information? This action will display full card/account numbers.')) {
+                          setIsPaymentRevealed(true);
+                        }
+                      }}
+                      className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    >
+                      Reveal Payment Information
+                    </button>
+                  )}
+                  {isPaymentRevealed && (
+                    <div className="flex items-center gap-2">
+                      <span className="px-3 py-1 text-xs font-medium text-red-800 bg-red-100 rounded-full">
+                        Payment Info Revealed
+                      </span>
+                      <button
+                        onClick={() => setIsPaymentRevealed(false)}
+                        className="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                      >
+                        Hide
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-500">Payment Method</label>
@@ -338,7 +393,12 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
                   </div>
 
                   {customer.payment_authorizations_decrypted && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className={`bg-gray-50 p-4 rounded-lg ${isPaymentRevealed ? 'border-2 border-red-300' : ''}`}>
+                      {isPaymentRevealed && (
+                        <div className="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
+                          ⚠️ Sensitive payment information is now visible. Handle with care.
+                        </div>
+                      )}
                       <h3 className="text-md font-semibold text-gray-900 mb-2">Payment Details</h3>
                       {customer.payment_method === 'ACH' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -356,7 +416,11 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Account Number</label>
-                            <p className="text-sm text-gray-900">{maskAccountNumber(customer.payment_authorizations_decrypted?.accountNumber || '')}</p>
+                            <p className="text-sm text-gray-900 font-mono">
+                              {isPaymentRevealed 
+                                ? customer.payment_authorizations_decrypted?.accountNumber || 'N/A'
+                                : maskAccountNumber(customer.payment_authorizations_decrypted?.accountNumber || '')}
+                            </p>
                           </div>
                         </div>
                       )}
@@ -373,7 +437,11 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Card Number</label>
-                            <p className="text-sm text-gray-900">{maskCardNumber(customer.payment_authorizations_decrypted?.cardNumber || '')}</p>
+                            <p className="text-sm text-gray-900 font-mono">
+                              {isPaymentRevealed 
+                                ? customer.payment_authorizations_decrypted?.cardNumber || 'N/A'
+                                : maskCardNumber(customer.payment_authorizations_decrypted?.cardNumber || '')}
+                            </p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Expiration Date</label>
@@ -381,7 +449,11 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">CVC Number</label>
-                            <p className="text-sm text-gray-900">***</p>
+                            <p className="text-sm text-gray-900 font-mono">
+                              {isPaymentRevealed 
+                                ? customer.payment_authorizations_decrypted?.cvcNumber || 'N/A'
+                                : '***'}
+                            </p>
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-500">Billing Zip Code</label>
@@ -438,6 +510,28 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
               <div className="bg-white shadow rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
                 <div className="space-y-3">
+                  <button
+                    onClick={handleDownloadPDF}
+                    disabled={isDownloadingPDF}
+                    className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  >
+                    {isDownloadingPDF ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Downloading PDF...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Download PDF (Full Payment Info)
+                      </>
+                    )}
+                  </button>
                   <button
                     onClick={() => {
                       const data = JSON.stringify(customer, null, 2);

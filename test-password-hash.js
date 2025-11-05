@@ -19,3 +19,4 @@ async function testPasswordHashing() {
 }
 
 testPasswordHashing().catch(console.error);
+

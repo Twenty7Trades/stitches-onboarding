@@ -81,3 +81,4 @@ CREATE TRIGGER update_customers_updated_at
     BEFORE UPDATE ON customers 
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
+

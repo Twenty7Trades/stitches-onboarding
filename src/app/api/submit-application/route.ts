@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { applicationSchema, Application } from '@/lib/validation';
 import { customerQueries, uuidv4 } from '@/lib/db';
 import { encrypt, getLast4Digits } from '@/lib/encryption';
-import { generateCSVData, generateCSVBuffer } from '@/lib/csv-export';
+import { generatePDFBuffer } from '@/lib/pdf-export';
 import nodemailer from 'nodemailer';
 
 export async function POST(request: NextRequest) {
@@ -72,16 +72,38 @@ export async function POST(request: NextRequest) {
       new Date().toISOString()  // updated_at
     ]);
 
-    // Generate CSV data for download
-    const csvData = generateCSVData(validatedData);
-    const csvBuffer = generateCSVBuffer([csvData]);
-    const csvContent = csvBuffer.toString('utf-8');
+    // Generate PDF for download (masked for customer)
+    let pdfBuffer: Buffer;
+    let pdfBase64: string;
+    try {
+      console.log('Generating PDF buffer...');
+      pdfBuffer = await generatePDFBuffer(validatedData, true);
+      pdfBase64 = pdfBuffer.toString('base64');
+      console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes');
+    } catch (pdfError) {
+      console.error('Error generating PDF:', pdfError);
+      throw new Error(`PDF generation failed: ${pdfError instanceof Error ? pdfError.message : 'Unknown error'}`);
+    }
 
     // Send email notification to admin
+    let emailStatus = 'not_attempted';
     try {
-      await sendAdminNotification(validatedData, customerId);
+      emailStatus = await sendAdminNotification(validatedData, customerId);
+      console.log('Email notification sent successfully:', emailStatus);
     } catch (emailError) {
+      emailStatus = 'failed';
       console.error('Failed to send admin notification:', emailError);
+      if (emailError instanceof Error) {
+        console.error('Email error details:', {
+          message: emailError.message,
+          stack: emailError.stack,
+          smtpHost: process.env.SMTP_HOST || 'not set',
+          smtpPort: process.env.SMTP_PORT || 'not set',
+          smtpUser: process.env.SMTP_USER ? 'set' : 'not set',
+          smtpPass: process.env.SMTP_PASS ? 'set' : 'not set',
+          notificationEmail: process.env.NOTIFICATION_EMAIL || 'not set'
+        });
+      }
       // Don't fail the submission if email fails
     }
 
@@ -96,7 +118,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       customerId,
-      csvData: csvContent
+      pdfData: pdfBase64,
+      emailStatus // Include email status for debugging
     });
 
   } catch (error) {
@@ -117,23 +140,59 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function sendAdminNotification(application: Application, customerId: string) {
-  // Configure nodemailer (you'll need to set up SMTP settings)
-  const transporter = nodemailer.createTransport({
-    // Configure with your email provider
-    // For now, we'll use a placeholder configuration
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
+async function sendAdminNotification(application: Application, customerId: string): Promise<string> {
+  // Validate SMTP configuration
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpPort = process.env.SMTP_PORT;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  const notificationEmail = process.env.NOTIFICATION_EMAIL || 'sales@pixelprint.la';
+
+  if (!smtpHost || !smtpPort || !smtpUser || !smtpPass) {
+    console.error('SMTP configuration incomplete:', {
+      host: smtpHost ? 'set' : 'missing',
+      port: smtpPort ? 'set' : 'missing',
+      user: smtpUser ? 'set' : 'missing',
+      pass: smtpPass ? 'set' : 'missing'
+    });
+    throw new Error('SMTP configuration is incomplete. Please check environment variables.');
+  }
+
+  console.log('Attempting to send email notification:', {
+    host: smtpHost,
+    port: smtpPort,
+    user: smtpUser,
+    to: notificationEmail,
+    from: process.env.SMTP_FROM || 'noreply@stitchesclothingco.com'
   });
+
+  // Configure nodemailer
+  const transporter = nodemailer.createTransport({
+    host: smtpHost,
+    port: parseInt(smtpPort),
+    secure: parseInt(smtpPort) === 465,
+    auth: {
+      user: smtpUser,
+      pass: smtpPass,
+    },
+    // Add connection timeout
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
+  });
+
+  // Verify connection
+  try {
+    await transporter.verify();
+    console.log('SMTP connection verified successfully');
+  } catch (verifyError) {
+    console.error('SMTP connection verification failed:', verifyError);
+    throw new Error(`SMTP connection failed: ${verifyError instanceof Error ? verifyError.message : 'Unknown error'}`);
+  }
 
   const mailOptions = {
     from: process.env.SMTP_FROM || 'noreply@stitchesclothingco.com',
-    to: 'sales@pixelprint.la',
+    to: notificationEmail,
     subject: 'New Customer Application - Stitches Clothing Co',
     html: `
       <h2>New Customer Application Received</h2>
@@ -149,7 +208,15 @@ async function sendAdminNotification(application: Application, customerId: strin
     `,
   };
 
-  await transporter.sendMail(mailOptions);
+  const info = await transporter.sendMail(mailOptions);
+  console.log('Email sent successfully:', {
+    messageId: info.messageId,
+    response: info.response,
+    accepted: info.accepted,
+    rejected: info.rejected
+  });
+  
+  return 'sent';
 }
 
 async function triggerWebhook(application: Application, customerId: string) {

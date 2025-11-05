@@ -1,18 +1,81 @@
 'use client';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React from 'react';
-import { UseFormRegister, UseFormWatch, FieldErrors } from 'react-hook-form';
+import React, { useRef } from 'react';
+import { UseFormRegister, UseFormWatch, FieldErrors, UseFormSetValue } from 'react-hook-form';
 import { Application } from '@/lib/validation';
 
 interface PaymentSectionProps {
   register: UseFormRegister<Application>;
   watch: UseFormWatch<Application>;
   errors: FieldErrors<Application>;
+  setValue?: UseFormSetValue<Application>;
 }
 
-export default function PaymentSection({ register, watch, errors }: PaymentSectionProps) {
+export default function PaymentSection({ register, watch, errors, setValue }: PaymentSectionProps) {
   const paymentMethod = watch('paymentMethod');
+  const expirationDateInputRef = useRef<HTMLInputElement>(null);
+  const cvcInputRef = useRef<HTMLInputElement>(null);
+
+  const handleExpirationDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, ''); // Remove all non-digits
+    
+    // Limit to 4 digits
+    if (value.length > 4) {
+      value = value.substring(0, 4);
+    }
+    
+    // Format with "/" after 2 digits (but allow user to type without it)
+    let formattedValue = value;
+    if (value.length >= 2) {
+      formattedValue = value.substring(0, 2) + '/' + value.substring(2);
+    }
+    
+    // Update the input value directly to show the formatted version
+    e.target.value = formattedValue;
+    
+    // Update the form value
+    if (setValue) {
+      setValue('paymentDetails.expirationDate' as any, formattedValue, { shouldValidate: true });
+    }
+    
+    // Auto-advance to CVC field when 4 digits are entered
+    if (value.length === 4 && cvcInputRef.current) {
+      setTimeout(() => {
+        cvcInputRef.current?.focus();
+      }, 0);
+    }
+  };
+
+  const handleExpirationDateBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Normalize the value on blur to ensure it's in MM/YY format
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length === 4) {
+      const formattedValue = value.substring(0, 2) + '/' + value.substring(2);
+      e.target.value = formattedValue;
+      if (setValue) {
+        setValue('paymentDetails.expirationDate' as any, formattedValue, { shouldValidate: true });
+      }
+    }
+  };
+
+  const handleExpirationDateKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Allow backspace, delete, tab, escape, enter
+    if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+      // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+      (e.keyCode === 65 && e.ctrlKey === true) ||
+      (e.keyCode === 67 && e.ctrlKey === true) ||
+      (e.keyCode === 86 && e.ctrlKey === true) ||
+      (e.keyCode === 88 && e.ctrlKey === true) ||
+      // Allow home, end, left, right
+      (e.keyCode >= 35 && e.keyCode <= 39)) {
+      return;
+    }
+    // Ensure that it is a number and stop the keypress
+    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+      e.preventDefault();
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -213,7 +276,23 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
               <input
                 type="text"
                 {...register('paymentDetails.expirationDate')}
-                placeholder="MM/YY"
+                ref={(e) => {
+                  if (e) {
+                    expirationDateInputRef.current = e;
+                    register('paymentDetails.expirationDate').ref(e);
+                  }
+                }}
+                onChange={(e) => {
+                  handleExpirationDateChange(e);
+                  register('paymentDetails.expirationDate').onChange(e);
+                }}
+                onBlur={(e) => {
+                  handleExpirationDateBlur(e);
+                  register('paymentDetails.expirationDate').onBlur(e);
+                }}
+                onKeyDown={handleExpirationDateKeyDown}
+                placeholder="MM/YY or MMYY"
+                maxLength={5}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
               />
               {(errors.paymentDetails as any)?.expirationDate && (
@@ -230,6 +309,12 @@ export default function PaymentSection({ register, watch, errors }: PaymentSecti
               <input
                 type="text"
                 {...register('paymentDetails.cvcNumber')}
+                ref={(e) => {
+                  if (e) {
+                    cvcInputRef.current = e;
+                    register('paymentDetails.cvcNumber').ref(e);
+                  }
+                }}
                 placeholder="123"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
               />

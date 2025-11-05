@@ -73,7 +73,14 @@ export const ccPaymentSchema = z.object({
     message: 'Please select card type'
   }),
   cardNumber: z.string().min(13, 'Valid card number is required'),
-  expirationDate: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, 'Valid expiration date (MM/YY) is required'),
+  expirationDate: z.string().refine((val) => {
+    // Remove any non-digit characters
+    const cleaned = val.replace(/\D/g, '');
+    // Check if it's 4 digits and format is valid
+    if (cleaned.length !== 4) return false;
+    const month = parseInt(cleaned.substring(0, 2), 10);
+    return month >= 1 && month <= 12;
+  }, 'Valid expiration date (MM/YY or MMYY) is required'),
   cvcNumber: z.string().min(3, 'CVC is required'),
   billingZipCode: z.string().min(5, 'Billing zip code is required'),
   authorization1: z.boolean().refine(val => val === true, 'Authorization required'),
@@ -89,7 +96,14 @@ export const net15PaymentSchema = z.object({
     message: 'Please select card type'
   }),
   cardNumber: z.string().min(13, 'Valid card number is required'),
-  expirationDate: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, 'Valid expiration date (MM/YY) is required'),
+  expirationDate: z.string().refine((val) => {
+    // Remove any non-digit characters
+    const cleaned = val.replace(/\D/g, '');
+    // Check if it's 4 digits and format is valid
+    if (cleaned.length !== 4) return false;
+    const month = parseInt(cleaned.substring(0, 2), 10);
+    return month >= 1 && month <= 12;
+  }, 'Valid expiration date (MM/YY or MMYY) is required'),
   cvcNumber: z.string().min(3, 'CVC is required'),
   billingZipCode: z.string().min(5, 'Billing zip code is required'),
   authorization1: z.boolean().refine(val => val === true, 'Authorization required'),

@@ -29,3 +29,4 @@ async function createAdminUser() {
 createAdminUser().then(() => {
   db.close();
 }).catch(console.error);
+

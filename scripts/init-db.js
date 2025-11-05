@@ -70,3 +70,4 @@ function initializeDatabase() {
 
 initializeDatabase();
 db.close();
+

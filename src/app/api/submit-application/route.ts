@@ -5,6 +5,24 @@ import { encrypt, getLast4Digits } from '@/lib/encryption';
 import { generatePDFBuffer } from '@/lib/pdf-export';
 import nodemailer from 'nodemailer';
 
+// GET method to check deployment version
+export async function GET() {
+  return NextResponse.json({
+    version: '2025-11-06-03',
+    deployedAt: new Date().toISOString(),
+    codeVersion: 'pdfData-v3',
+    message: 'This endpoint confirms the new code is deployed',
+    submitApplicationReturns: 'pdfData (NOT csvData)',
+    apiRoute: '/api/submit-application'
+  }, {
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      'X-Deployment-Version': '2025-11-06-03',
+      'X-API-Version': 'pdfData-v3'
+    }
+  });
+}
+
 export async function POST(request: NextRequest) {
   console.log('=== SUBMIT APPLICATION API CALLED - VERSION 2025-11-06-03 ===');
   console.log('This version returns pdfData, NOT csvData');

@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Determine if we're in production (PostgreSQL) or development (SQLite)
 const isProduction = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL?.startsWith('postgresql://');
-const isBuildTime = process.env.BUILD_TIME === 'true';
+const isBuildTime = process.env.BUILD_TIME === 'true' || process.env.BUILD_TIME === '1' || process.env.CI === 'true';
 
 let db: Database.Database | null = null;
 let pgPool: Pool | null = null;

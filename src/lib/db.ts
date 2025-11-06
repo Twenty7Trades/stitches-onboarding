@@ -96,15 +96,22 @@ export async function initializeDatabase() {
         CREATE INDEX IF NOT EXISTS idx_customers_submission_date ON customers(submission_date DESC);
       `);
 
-      // Create default admin user if it doesn't exist
+      // Create default admin user if it doesn't exist (use same client connection)
       const { hashPassword } = await import('@/lib/simple-auth');
-      const existingAdmin = await adminQueries.getByEmail('sales@pixelprint.la');
-      if (!existingAdmin) {
+      const checkAdminResult = await client.query(`
+        SELECT * FROM admin_users WHERE email = $1
+      `, ['sales@pixelprint.la']);
+      
+      if (checkAdminResult.rows.length === 0) {
         console.log('Creating default admin user...');
         const adminId = uuidv4();
         const passwordHash = await hashPassword('Stitches123');
-        await adminQueries.insert(adminId, 'sales@pixelprint.la', passwordHash, 'Admin User');
+        await client.query(`
+          INSERT INTO admin_users (id, email, password_hash, name) VALUES ($1, $2, $3, $4)
+        `, [adminId, 'sales@pixelprint.la', passwordHash, 'Admin User']);
         console.log('Default admin user created');
+      } else {
+        console.log('Default admin user already exists');
       }
     } finally {
       client.release();
@@ -169,15 +176,22 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_customers_submission_date ON customers(submission_date DESC);
     `);
 
-    // Create default admin user if it doesn't exist (SQLite)
-    const existingAdmin = await adminQueries.getByEmail('sales@pixelprint.la');
+    // Create default admin user if it doesn't exist (SQLite - use same database connection)
+    const { hashPassword } = await import('@/lib/simple-auth');
+    const existingAdmin = (database as Database.Database).prepare(`
+      SELECT * FROM admin_users WHERE email = ?
+    `).get('sales@pixelprint.la');
+    
     if (!existingAdmin) {
       console.log('Creating default admin user...');
-      const { hashPassword } = await import('@/lib/simple-auth');
       const adminId = uuidv4();
       const passwordHash = await hashPassword('Stitches123');
-      await adminQueries.insert(adminId, 'sales@pixelprint.la', passwordHash, 'Admin User');
+      (database as Database.Database).prepare(`
+        INSERT INTO admin_users (id, email, password_hash, name) VALUES (?, ?, ?, ?)
+      `).run(adminId, 'sales@pixelprint.la', passwordHash, 'Admin User');
       console.log('Default admin user created');
+    } else {
+      console.log('Default admin user already exists');
     }
   }
 }

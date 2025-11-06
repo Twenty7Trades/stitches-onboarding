@@ -5,7 +5,16 @@ import { hashPassword } from '@/lib/simple-auth';
 
 // Direct admin user creation endpoint - bypasses normal initialization
 // Call this once to set up the admin user immediately
+// Supports both GET (browser) and POST (programmatic) requests
+export async function GET(request: NextRequest) {
+  return await setupAdmin();
+}
+
 export async function POST(request: NextRequest) {
+  return await setupAdmin();
+}
+
+async function setupAdmin() {
   try {
     // Get database URL from environment
     const databaseUrl = process.env.DATABASE_URL;

@@ -223,9 +223,15 @@ export async function initializeDatabase() {
 export const customerQueries = {
   insert: async (data: (string | number)[]) => {
     const database = getDatabase();
+    console.log('customerQueries.insert: Database connection:', database ? 'Connected' : 'Not connected');
+    console.log('customerQueries.insert: Is production:', isProduction);
+    console.log('customerQueries.insert: Data length:', data.length);
+    console.log('customerQueries.insert: Customer ID:', data[0]);
+    
     if (isProduction && database) {
       const client = await (database as Pool).connect();
       try {
+        console.log('customerQueries.insert: Executing PostgreSQL INSERT...');
         const result = await client.query(`
           INSERT INTO customers (
             id, business_name, main_email, main_contact_rep, phone, asi_number,
@@ -237,23 +243,37 @@ export const customerQueries = {
             payment_authorizations_encrypted, signature_data, status, submission_date, created_at, updated_at
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35)
         `, data);
+        console.log('customerQueries.insert: PostgreSQL INSERT successful, rowCount:', result.rowCount);
         return result;
+      } catch (error) {
+        console.error('customerQueries.insert: PostgreSQL INSERT error:', error);
+        throw error;
       } finally {
         client.release();
       }
     } else if (database) {
-      return (database as Database.Database).prepare(`
-        INSERT INTO customers (
-          id, business_name, main_email, main_contact_rep, phone, asi_number,
-          business_type, years_in_business, ein_number_encrypted, estimated_annual_business,
-          average_order_size, billing_address, billing_city, billing_state, billing_zip,
-          billing_contact, billing_phone, billing_email, shipping_address, shipping_city,
-          shipping_state, shipping_zip, shipping_contact, shipping_phone, payment_method,
-          payment_card_last4, payment_card_type, payment_account_last4, payment_account_type,
-          payment_authorizations_encrypted, signature_data, status, submission_date, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(...data);
+      try {
+        console.log('customerQueries.insert: Executing SQLite INSERT...');
+        const result = (database as Database.Database).prepare(`
+          INSERT INTO customers (
+            id, business_name, main_email, main_contact_rep, phone, asi_number,
+            business_type, years_in_business, ein_number_encrypted, estimated_annual_business,
+            average_order_size, billing_address, billing_city, billing_state, billing_zip,
+            billing_contact, billing_phone, billing_email, shipping_address, shipping_city,
+            shipping_state, shipping_zip, shipping_contact, shipping_phone, payment_method,
+            payment_card_last4, payment_card_type, payment_account_last4, payment_account_type,
+            payment_authorizations_encrypted, signature_data, status, submission_date, created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(...data);
+        console.log('customerQueries.insert: SQLite INSERT successful, changes:', result.changes);
+        return result;
+      } catch (error) {
+        console.error('customerQueries.insert: SQLite INSERT error:', error);
+        throw error;
+      }
     }
+    console.error('customerQueries.insert: No database connection! Cannot insert.');
+    throw new Error('Database connection not available');
   },
 
   getAll: async () => {

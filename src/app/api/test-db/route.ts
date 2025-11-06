@@ -34,6 +34,12 @@ export async function GET() {
         main_email: c.main_email,
         submission_date: c.submission_date
       }))
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
     });
   } catch (error) {
     console.error('Database test error:', error);

@@ -6,15 +6,15 @@ frontend:
         - echo "=== CLEARING ALL CACHES ==="
         - rm -rf .next
         - rm -rf node_modules/.cache
-        - npm ci --cache .npm --prefer-offline
         - echo "Installing dependencies..."
+        - npm ci
         - echo "Clearing Next.js cache to force fresh build..."
     build:
       commands:
         - echo "=== BUILDING VERSION 2025-11-06-03 ==="
         - echo "Setting build environment variables..."
-        - export BUILD_TIME=$(date +%s)
-        - export DEPLOYMENT_VERSION=2025-11-06-03
+        - export BUILD_TIME=true
+        - export NODE_ENV=production
         - echo "Building Next.js application..."
         - npm run build
         - echo "Build completed successfully"

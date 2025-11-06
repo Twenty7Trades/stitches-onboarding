@@ -2,7 +2,15 @@ import { NextResponse } from 'next/server';
 import { Pool } from 'pg';
 import bcrypt from 'bcryptjs';
 
+export async function GET() {
+  return await createAdminDirect();
+}
+
 export async function POST() {
+  return await createAdminDirect();
+}
+
+async function createAdminDirect() {
   try {
     console.log('Creating admin user with direct database connection...');
     

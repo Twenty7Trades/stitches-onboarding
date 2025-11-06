@@ -95,6 +95,17 @@ export async function initializeDatabase() {
         CREATE INDEX IF NOT EXISTS idx_customers_status ON customers(status);
         CREATE INDEX IF NOT EXISTS idx_customers_submission_date ON customers(submission_date DESC);
       `);
+
+      // Create default admin user if it doesn't exist
+      const { hashPassword } = await import('@/lib/simple-auth');
+      const existingAdmin = await adminQueries.getByEmail('sales@pixelprint.la');
+      if (!existingAdmin) {
+        console.log('Creating default admin user...');
+        const adminId = uuidv4();
+        const passwordHash = await hashPassword('Stitches123');
+        await adminQueries.insert(adminId, 'sales@pixelprint.la', passwordHash, 'Admin User');
+        console.log('Default admin user created');
+      }
     } finally {
       client.release();
     }
@@ -157,6 +168,17 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_customers_status ON customers(status);
       CREATE INDEX IF NOT EXISTS idx_customers_submission_date ON customers(submission_date DESC);
     `);
+
+    // Create default admin user if it doesn't exist (SQLite)
+    const existingAdmin = await adminQueries.getByEmail('sales@pixelprint.la');
+    if (!existingAdmin) {
+      console.log('Creating default admin user...');
+      const { hashPassword } = await import('@/lib/simple-auth');
+      const adminId = uuidv4();
+      const passwordHash = await hashPassword('Stitches123');
+      await adminQueries.insert(adminId, 'sales@pixelprint.la', passwordHash, 'Admin User');
+      console.log('Default admin user created');
+    }
   }
 }
 

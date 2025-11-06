@@ -5,6 +5,8 @@ frontend:
       commands:
         - npm ci --cache .npm --prefer-offline
         - echo "Installing dependencies..."
+        - echo "Clearing Next.js cache to force fresh build..."
+        - rm -rf .next
     build:
       commands:
         - echo "Setting build environment variables..."
@@ -21,6 +23,5 @@ frontend:
       - "**/*"
   cache:
     paths:
-      - .next/cache/**/*
       - .npm/**/*
       - node_modules/**/*

@@ -4,8 +4,11 @@ import { customerQueries, adminQueries } from '@/lib/db';
 
 export async function GET() {
   try {
-    // Initialize database
+    // Initialize database (this should create admin user if it doesn't exist)
     await initializeDatabase();
+    
+    // Wait a moment for any async operations to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
     
     // Check if admin user exists
     const adminUser = await adminQueries.getByEmail('sales@pixelprint.la');
@@ -15,6 +18,13 @@ export async function GET() {
     
     return NextResponse.json({
       success: true,
+      databaseConnected: true,
+      userFound: !!adminUser,
+      user: adminUser ? {
+        id: adminUser.id,
+        email: adminUser.email,
+        name: adminUser.name
+      } : null,
       databaseInitialized: true,
       adminUserExists: !!adminUser,
       customerCount: customers.length,
@@ -30,6 +40,9 @@ export async function GET() {
     return NextResponse.json(
       {
         success: false,
+        databaseConnected: false,
+        userFound: false,
+        user: null,
         error: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined
       },

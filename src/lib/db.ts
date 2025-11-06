@@ -97,21 +97,44 @@ export async function initializeDatabase() {
       `);
 
       // Create default admin user if it doesn't exist (use same client connection)
-      const { hashPassword } = await import('@/lib/simple-auth');
-      const checkAdminResult = await client.query(`
-        SELECT * FROM admin_users WHERE email = $1
-      `, ['sales@pixelprint.la']);
-      
-      if (checkAdminResult.rows.length === 0) {
-        console.log('Creating default admin user...');
-        const adminId = uuidv4();
-        const passwordHash = await hashPassword('Stitches123');
-        await client.query(`
-          INSERT INTO admin_users (id, email, password_hash, name) VALUES ($1, $2, $3, $4)
-        `, [adminId, 'sales@pixelprint.la', passwordHash, 'Admin User']);
-        console.log('Default admin user created');
-      } else {
-        console.log('Default admin user already exists');
+      try {
+        const { hashPassword } = await import('@/lib/simple-auth');
+        const checkAdminResult = await client.query(`
+          SELECT * FROM admin_users WHERE email = $1
+        `, ['sales@pixelprint.la']);
+        
+        console.log('Admin user check result:', checkAdminResult.rows.length, 'rows found');
+        
+        if (checkAdminResult.rows.length === 0) {
+          console.log('Creating default admin user...');
+          const adminId = uuidv4();
+          const passwordHash = await hashPassword('Stitches123');
+          console.log('Admin ID:', adminId);
+          console.log('Password hash length:', passwordHash.length);
+          
+          const insertResult = await client.query(`
+            INSERT INTO admin_users (id, email, password_hash, name) VALUES ($1, $2, $3, $4)
+          `, [adminId, 'sales@pixelprint.la', passwordHash, 'Admin User']);
+          
+          console.log('Insert result:', insertResult.rowCount, 'rows inserted');
+          
+          // Verify it was created
+          const verifyResult = await client.query(`
+            SELECT * FROM admin_users WHERE email = $1
+          `, ['sales@pixelprint.la']);
+          
+          if (verifyResult.rows.length > 0) {
+            console.log('Default admin user created and verified');
+          } else {
+            console.error('ERROR: Admin user was NOT found after insert!');
+          }
+        } else {
+          console.log('Default admin user already exists');
+        }
+      } catch (adminError) {
+        console.error('Error creating admin user in initializeDatabase:', adminError);
+        // Don't throw - let initialization continue even if admin creation fails
+        // The /api/init-db endpoint will handle it separately
       }
     } finally {
       client.release();

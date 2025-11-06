@@ -79,21 +79,30 @@ export async function initializeDatabase() {
 
       // Add missing columns if table already exists with old schema
       try {
-        // Check if submission_date column exists
-        const columnCheck = await client.query(`
+        // Check which columns exist
+        const columnsResult = await client.query(`
           SELECT column_name 
           FROM information_schema.columns 
           WHERE table_schema = 'public' 
-          AND table_name = 'customers' 
-          AND column_name = 'submission_date'
+          AND table_name = 'customers'
         `);
+        const existingColumns = new Set(columnsResult.rows.map(r => r.column_name));
         
-        if (columnCheck.rows.length === 0) {
-          console.log('Adding missing submission_date column to customers table...');
-          await client.query(`
-            ALTER TABLE customers 
-            ADD COLUMN IF NOT EXISTS submission_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-          `);
+        // Add missing columns
+        const requiredColumns = [
+          { name: 'submission_date', sql: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP' },
+          { name: 'status', sql: 'VARCHAR(20) DEFAULT \'pending\'' },
+          { name: 'updated_at', sql: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP' }
+        ];
+        
+        for (const col of requiredColumns) {
+          if (!existingColumns.has(col.name)) {
+            console.log(`Adding missing column ${col.name} to customers table...`);
+            await client.query(`
+              ALTER TABLE customers 
+              ADD COLUMN ${col.name} ${col.sql}
+            `);
+          }
         }
       } catch (migrationError) {
         console.error('Error adding missing columns:', migrationError);

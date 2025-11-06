@@ -249,12 +249,12 @@ export async function generatePDFBuffer(
   }
 }
 
-export function maskPaymentInfo(paymentDetails: any, paymentMethod: string): string {
+export function maskPaymentInfo(paymentDetails: Record<string, unknown>, paymentMethod: string): string {
   if (paymentMethod === 'ACH') {
-    const accountNumber = paymentDetails.accountNumber || '';
+    const accountNumber = (paymentDetails.accountNumber as string) || '';
     return `****${getLast4Digits(accountNumber)}`;
   } else if (paymentMethod === 'CC' || paymentMethod === 'NET15') {
-    const cardNumber = paymentDetails.cardNumber || '';
+    const cardNumber = (paymentDetails.cardNumber as string) || '';
     return `**** **** **** ${getLast4Digits(cardNumber)}`;
   }
   return '****';

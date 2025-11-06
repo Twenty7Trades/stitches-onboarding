@@ -105,7 +105,7 @@ export async function authenticateUser(email: string, password: string): Promise
       const db = new Database('stitches.db');
       try {
         console.log('authenticateUser: Using SQLite...');
-        const user = db.prepare('SELECT * FROM admin_users WHERE email = ?').get(email) as any;
+        const user = db.prepare('SELECT * FROM admin_users WHERE email = ?').get(email) as { id: string; email: string; password_hash: string; name: string | null } | undefined;
         
         if (!user) {
           console.log('authenticateUser: User not found in database');

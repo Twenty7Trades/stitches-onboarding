@@ -49,7 +49,7 @@ export default function PaymentSection({ register, watch, errors, setValue }: Pa
 
   const handleExpirationDateBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     // Normalize the value on blur to ensure it's in MM/YY format
-    let value = e.target.value.replace(/\D/g, '');
+    const value = e.target.value.replace(/\D/g, '');
     if (value.length === 4) {
       const formattedValue = value.substring(0, 2) + '/' + value.substring(2);
       e.target.value = formattedValue;

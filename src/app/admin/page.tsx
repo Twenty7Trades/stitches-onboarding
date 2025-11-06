@@ -193,7 +193,7 @@ export default function AdminDashboard() {
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">Pending</dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        {customers.filter((c: any) => c.status === 'pending').length}
+                        {customers.filter((c: Customer) => c.status === 'pending').length}
                       </dd>
                     </dl>
                   </div>
@@ -215,7 +215,7 @@ export default function AdminDashboard() {
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">Approved</dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        {customers.filter((c: any) => c.status === 'approved').length}
+                        {customers.filter((c: Customer) => c.status === 'approved').length}
                       </dd>
                     </dl>
                   </div>
@@ -237,7 +237,7 @@ export default function AdminDashboard() {
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">Rejected</dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        {customers.filter((c: any) => c.status === 'rejected').length}
+                        {customers.filter((c: Customer) => c.status === 'rejected').length}
                       </dd>
                     </dl>
                   </div>

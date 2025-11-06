@@ -77,6 +77,29 @@ export async function initializeDatabase() {
         )
       `);
 
+      // Add missing columns if table already exists with old schema
+      try {
+        // Check if submission_date column exists
+        const columnCheck = await client.query(`
+          SELECT column_name 
+          FROM information_schema.columns 
+          WHERE table_schema = 'public' 
+          AND table_name = 'customers' 
+          AND column_name = 'submission_date'
+        `);
+        
+        if (columnCheck.rows.length === 0) {
+          console.log('Adding missing submission_date column to customers table...');
+          await client.query(`
+            ALTER TABLE customers 
+            ADD COLUMN IF NOT EXISTS submission_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          `);
+        }
+      } catch (migrationError) {
+        console.error('Error adding missing columns:', migrationError);
+        // Don't fail initialization if migration fails
+      }
+
       // Create admin_users table
       await client.query(`
         CREATE TABLE IF NOT EXISTS admin_users (

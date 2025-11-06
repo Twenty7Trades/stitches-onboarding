@@ -15,12 +15,25 @@ export async function GET(request: NextRequest) {
     }
 
     console.log('Admin submissions API: Fetching customers for user:', user.email);
-    const customers = await customerQueries.getAll();
-    console.log('Admin submissions API: Found', customers.length, 'customers');
+    
+    // Try to get customers
+    let customers;
+    try {
+      customers = await customerQueries.getAll();
+      console.log('Admin submissions API: getAll returned', customers?.length || 0, 'customers');
+    } catch (error) {
+      console.error('Admin submissions API: Error calling getAll:', error);
+      return NextResponse.json({
+        success: false,
+        error: 'Failed to fetch customers',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        customers: []
+      });
+    }
     
     return NextResponse.json({
       success: true,
-      customers
+      customers: customers || []
     });
 
   } catch (error) {

@@ -6,6 +6,9 @@ import { generatePDFBuffer } from '@/lib/pdf-export';
 import nodemailer from 'nodemailer';
 
 export async function POST(request: NextRequest) {
+  console.log('=== SUBMIT APPLICATION API CALLED - VERSION 2025-11-06-03 ===');
+  console.log('This version returns pdfData, NOT csvData');
+  
   try {
     // Ensure database is initialized
     await initializeDatabase();
@@ -134,19 +137,28 @@ export async function POST(request: NextRequest) {
 
     // Always return JSON response, even if PDF generation failed
     // IMPORTANT: Return pdfData, NOT csvData
+    // VERSION: 2025-11-06-03 - Force deployment with version identifier
+    console.log('=== RETURNING RESPONSE WITH pdfData ===');
+    console.log('pdfBase64 exists:', !!pdfBase64);
+    console.log('pdfError:', pdfError);
+    
     return NextResponse.json({
       success: true,
       customerId,
       pdfData: pdfBase64, // Will be null if PDF generation failed - this is PDF data, NOT CSV
       pdfError: pdfError || null, // Include PDF error if it failed
       emailStatus, // Include email status for debugging
-      message: pdfError ? 'Application saved successfully, but PDF generation failed. You can view it in the admin panel.' : 'Application submitted successfully'
+      message: pdfError ? 'Application saved successfully, but PDF generation failed. You can view it in the admin panel.' : 'Application submitted successfully',
+      version: '2025-11-06-03', // Version identifier to verify deployment
+      deployedAt: new Date().toISOString()
     }, {
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
         'Pragma': 'no-cache',
-        'Expires': '0'
+        'Expires': '0',
+        'X-Deployment-Version': '2025-11-06-03',
+        'X-API-Version': 'pdfData-v3'
       }
     });
 

@@ -133,17 +133,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Always return JSON response, even if PDF generation failed
+    // IMPORTANT: Return pdfData, NOT csvData
     return NextResponse.json({
       success: true,
       customerId,
-      pdfData: pdfBase64, // Will be null if PDF generation failed
+      pdfData: pdfBase64, // Will be null if PDF generation failed - this is PDF data, NOT CSV
       pdfError: pdfError || null, // Include PDF error if it failed
       emailStatus, // Include email status for debugging
       message: pdfError ? 'Application saved successfully, but PDF generation failed. You can view it in the admin panel.' : 'Application submitted successfully'
     }, {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-store, no-cache, must-revalidate'
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       }
     });
 

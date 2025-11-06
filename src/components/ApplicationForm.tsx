@@ -88,24 +88,23 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
   const onFormSubmit = async (data: Application) => {
     setValidationErrors([]);
     
-    // TEMPORARY: Bypass signature for testing - auto-inject test signature if empty
-    const testSignature = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
-    const finalSignature = signature.length === 0 ? testSignature : signature;
-    
     if (signature.length === 0) {
-      setSignature(testSignature);
+      setValidationErrors(['Please provide your digital signature']);
+      return;
     }
     
     try {
       const formData = {
         ...data,
-        signature: { signature: finalSignature }
+        signature: { signature }
       };
       
       await onSubmit(formData);
     } catch (error) {
       console.error('Form submission error:', error);
-      setValidationErrors(['There was an error submitting your application. Please try again.']);
+      const errorMessage = error instanceof Error ? error.message : 'There was an error submitting your application. Please try again.';
+      setValidationErrors([errorMessage]);
+      throw error; // Re-throw so it can be caught by the button handler too
     }
   };
 
@@ -565,19 +564,17 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
                 onClick={async () => {
                   const formData = watch();
                   
-                  // TEMPORARY: Bypass signature for testing
-                  const testSignature = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
-                  const finalSignature = signature.length === 0 ? testSignature : signature;
-                  
                   if (signature.length === 0) {
-                    setSignature(testSignature);
+                    setValidationErrors(['Please provide your digital signature']);
+                    return;
                   }
                   
                   try {
                     await onFormSubmit(formData);
                   } catch (error) {
                     console.error('Form submission error:', error);
-                    setValidationErrors(['There was an error submitting your application. Please try again.']);
+                    const errorMessage = error instanceof Error ? error.message : 'There was an error submitting your application. Please try again.';
+                    setValidationErrors([errorMessage]);
                   }
                 }}
                 className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"

@@ -89,10 +89,10 @@ export async function POST(request: NextRequest) {
       throw new Error(`PDF generation failed: ${pdfError instanceof Error ? pdfError.message : 'Unknown error'}`);
     }
 
-    // Send email notification to admin
+    // Send email notification to admin with PDF attachment
     let emailStatus = 'not_attempted';
     try {
-      emailStatus = await sendAdminNotification(validatedData, customerId);
+      emailStatus = await sendAdminNotification(validatedData, customerId, pdfBuffer);
       console.log('Email notification sent successfully:', emailStatus);
     } catch (emailError) {
       emailStatus = 'failed';
@@ -129,10 +129,19 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error submitting application:', error);
     
+    // Log detailed error information
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+    }
+    
     // Return more detailed error information for debugging
     if (error instanceof Error) {
       return NextResponse.json(
-        { error: 'Failed to submit application', details: error.message },
+        { error: 'Failed to submit application', details: error.message, stack: process.env.NODE_ENV === 'development' ? error.stack : undefined },
         { status: 500 }
       );
     }
@@ -144,7 +153,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function sendAdminNotification(application: Application, customerId: string): Promise<string> {
+async function sendAdminNotification(application: Application, customerId: string, pdfBuffer: Buffer): Promise<string> {
   // Validate SMTP configuration
   const smtpHost = process.env.SMTP_HOST;
   const smtpPort = process.env.SMTP_PORT;
@@ -208,8 +217,16 @@ async function sendAdminNotification(application: Application, customerId: strin
       <p><strong>Application ID:</strong> ${customerId}</p>
       <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
       
-      <p>Please log into the admin portal to review the full application.</p>
+      <p>Please see the attached PDF for the complete application details.</p>
+      <p>You can also log into the admin portal to review the full application.</p>
     `,
+    attachments: [
+      {
+        filename: `stitches-application-${customerId}.pdf`,
+        content: pdfBuffer,
+        contentType: 'application/pdf',
+      },
+    ],
   };
 
   const info = await transporter.sendMail(mailOptions);

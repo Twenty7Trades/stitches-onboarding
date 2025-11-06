@@ -33,8 +33,10 @@ export default function HomePage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || 'Failed to submit application');
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.details || errorData.error || `Server error: ${response.status}`;
+        console.error('Submission error:', errorData);
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();

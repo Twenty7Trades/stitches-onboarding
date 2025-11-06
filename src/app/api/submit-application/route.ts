@@ -36,79 +36,92 @@ export async function POST(request: NextRequest) {
     const encryptedEIN = encrypt(validatedData.businessInfo.einNumber);
     const encryptedAuthorizations = encrypt(JSON.stringify(validatedData.paymentDetails));
 
-    // Insert into database
-    await customerQueries.insert([
-      customerId,
-      validatedData.businessInfo.businessName,
-      validatedData.businessInfo.mainEmail,
-      validatedData.businessInfo.mainContactRep,
-      validatedData.businessInfo.phone,
-      validatedData.businessInfo.asiNumber || '',
-      validatedData.businessInfo.businessType,
-      validatedData.businessInfo.yearsInBusiness,
-      encryptedEIN,
-      validatedData.businessInfo.estimatedAnnualBusiness,
-      validatedData.businessInfo.averageOrderSize,
-      validatedData.billingInfo.billingAddress,
-      validatedData.billingInfo.billingCity,
-      validatedData.billingInfo.billingState,
-      validatedData.billingInfo.billingZip,
-      validatedData.billingInfo.billingContact,
-      validatedData.billingInfo.billingPhone,
-      validatedData.billingInfo.billingEmail,
-      validatedData.shippingInfo.shippingAddress,
-      validatedData.shippingInfo.shippingCity,
-      validatedData.shippingInfo.shippingState,
-      validatedData.shippingInfo.shippingZip,
-      validatedData.shippingInfo.shippingContact,
-      validatedData.shippingInfo.shippingPhone,
-      validatedData.paymentMethod,
-      paymentCardLast4 || '',
-      paymentCardType || '',
-      paymentAccountLast4 || '',
-      paymentAccountType || '',
-      encryptedAuthorizations,
-      validatedData.signature.signature,
-      'pending', // status
-      new Date().toISOString(), // submission_date
-      new Date().toISOString(), // created_at
-      new Date().toISOString()  // updated_at
-    ]);
-    console.log('Customer inserted successfully, ID:', customerId);
+    // Insert into database FIRST (before PDF generation)
+    try {
+      await customerQueries.insert([
+        customerId,
+        validatedData.businessInfo.businessName,
+        validatedData.businessInfo.mainEmail,
+        validatedData.businessInfo.mainContactRep,
+        validatedData.businessInfo.phone,
+        validatedData.businessInfo.asiNumber || '',
+        validatedData.businessInfo.businessType,
+        validatedData.businessInfo.yearsInBusiness,
+        encryptedEIN,
+        validatedData.businessInfo.estimatedAnnualBusiness,
+        validatedData.businessInfo.averageOrderSize,
+        validatedData.billingInfo.billingAddress,
+        validatedData.billingInfo.billingCity,
+        validatedData.billingInfo.billingState,
+        validatedData.billingInfo.billingZip,
+        validatedData.billingInfo.billingContact,
+        validatedData.billingInfo.billingPhone,
+        validatedData.billingInfo.billingEmail,
+        validatedData.shippingInfo.shippingAddress,
+        validatedData.shippingInfo.shippingCity,
+        validatedData.shippingInfo.shippingState,
+        validatedData.shippingInfo.shippingZip,
+        validatedData.shippingInfo.shippingContact,
+        validatedData.shippingInfo.shippingPhone,
+        validatedData.paymentMethod,
+        paymentCardLast4 || '',
+        paymentCardType || '',
+        paymentAccountLast4 || '',
+        paymentAccountType || '',
+        encryptedAuthorizations,
+        validatedData.signature.signature,
+        'pending', // status
+        new Date().toISOString(), // submission_date
+        new Date().toISOString(), // created_at
+        new Date().toISOString()  // updated_at
+      ]);
+      console.log('Customer inserted successfully, ID:', customerId);
+    } catch (dbError) {
+      console.error('Database insertion error:', dbError);
+      throw new Error(`Failed to save application: ${dbError instanceof Error ? dbError.message : 'Unknown error'}`);
+    }
 
     // Generate PDF for download (masked for customer)
-    let pdfBuffer: Buffer;
-    let pdfBase64: string;
+    // Don't fail the submission if PDF generation fails
+    let pdfBuffer: Buffer | null = null;
+    let pdfBase64: string | null = null;
+    let pdfError: string | null = null;
     try {
       console.log('Generating PDF buffer...');
       pdfBuffer = await generatePDFBuffer(validatedData, true);
       pdfBase64 = pdfBuffer.toString('base64');
       console.log('PDF generated successfully, size:', pdfBuffer.length, 'bytes');
-    } catch (pdfError) {
-      console.error('Error generating PDF:', pdfError);
-      throw new Error(`PDF generation failed: ${pdfError instanceof Error ? pdfError.message : 'Unknown error'}`);
+    } catch (pdfGenError) {
+      console.error('Error generating PDF:', pdfGenError);
+      pdfError = pdfGenError instanceof Error ? pdfGenError.message : 'Unknown PDF generation error';
+      // Don't throw - continue with submission even if PDF fails
     }
 
-    // Send email notification to admin with PDF attachment
+    // Send email notification to admin with PDF attachment (only if PDF was generated)
     let emailStatus = 'not_attempted';
-    try {
-      emailStatus = await sendAdminNotification(validatedData, customerId, pdfBuffer);
-      console.log('Email notification sent successfully:', emailStatus);
-    } catch (emailError) {
-      emailStatus = 'failed';
-      console.error('Failed to send admin notification:', emailError);
-      if (emailError instanceof Error) {
-        console.error('Email error details:', {
-          message: emailError.message,
-          stack: emailError.stack,
-          smtpHost: process.env.SMTP_HOST || 'not set',
-          smtpPort: process.env.SMTP_PORT || 'not set',
-          smtpUser: process.env.SMTP_USER ? 'set' : 'not set',
-          smtpPass: process.env.SMTP_PASS ? 'set' : 'not set',
-          notificationEmail: process.env.NOTIFICATION_EMAIL || 'not set'
-        });
+    if (pdfBuffer) {
+      try {
+        emailStatus = await sendAdminNotification(validatedData, customerId, pdfBuffer);
+        console.log('Email notification sent successfully:', emailStatus);
+      } catch (emailError) {
+        emailStatus = 'failed';
+        console.error('Failed to send admin notification:', emailError);
+        if (emailError instanceof Error) {
+          console.error('Email error details:', {
+            message: emailError.message,
+            stack: emailError.stack,
+            smtpHost: process.env.SMTP_HOST || 'not set',
+            smtpPort: process.env.SMTP_PORT || 'not set',
+            smtpUser: process.env.SMTP_USER ? 'set' : 'not set',
+            smtpPass: process.env.SMTP_PASS ? 'set' : 'not set',
+            notificationEmail: process.env.NOTIFICATION_EMAIL || 'not set'
+          });
+        }
+        // Don't fail the submission if email fails
       }
-      // Don't fail the submission if email fails
+    } else {
+      emailStatus = 'skipped_no_pdf';
+      console.log('Email notification skipped - PDF generation failed');
     }
 
     // Trigger webhook if configured
@@ -119,11 +132,19 @@ export async function POST(request: NextRequest) {
       // Don't fail the submission if webhook fails
     }
 
+    // Always return JSON response, even if PDF generation failed
     return NextResponse.json({
       success: true,
       customerId,
-      pdfData: pdfBase64,
-      emailStatus // Include email status for debugging
+      pdfData: pdfBase64, // Will be null if PDF generation failed
+      pdfError: pdfError || null, // Include PDF error if it failed
+      emailStatus, // Include email status for debugging
+      message: pdfError ? 'Application saved successfully, but PDF generation failed. You can view it in the admin panel.' : 'Application submitted successfully'
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, no-cache, must-revalidate'
+      }
     });
 
   } catch (error) {
@@ -138,17 +159,37 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    // Return more detailed error information for debugging
+    // ALWAYS return JSON, never CSV or HTML
     if (error instanceof Error) {
       return NextResponse.json(
-        { error: 'Failed to submit application', details: error.message, stack: process.env.NODE_ENV === 'development' ? error.stack : undefined },
-        { status: 500 }
+        { 
+          success: false,
+          error: 'Failed to submit application', 
+          details: error.message, 
+          stack: process.env.NODE_ENV === 'development' ? error.stack : undefined 
+        },
+        { 
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store, no-cache, must-revalidate'
+          }
+        }
       );
     }
     
     return NextResponse.json(
-      { error: 'Failed to submit application' },
-      { status: 500 }
+      { 
+        success: false,
+        error: 'Failed to submit application' 
+      },
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, no-cache, must-revalidate'
+        }
+      }
     );
   }
 }

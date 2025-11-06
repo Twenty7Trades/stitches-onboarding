@@ -44,22 +44,26 @@ export default function HomePage() {
       // Check if pdfData exists in response
       if (!result.pdfData) {
         console.error('No pdfData in response:', result);
-        throw new Error('PDF generation failed - no PDF data received');
-      }
-      
-      // Create download URL for PDF
-      try {
-        const pdfData = atob(result.pdfData);
-        const pdfBytes = new Uint8Array(pdfData.length);
-        for (let i = 0; i < pdfData.length; i++) {
-          pdfBytes[i] = pdfData.charCodeAt(i);
+        // Don't throw error - submission was successful, just PDF failed
+        // Show a warning message instead
+        if (result.pdfError) {
+          console.warn('PDF generation failed:', result.pdfError);
         }
-        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        setPdfDownloadUrl(url);
-      } catch (pdfError) {
-        console.error('Error processing PDF data:', pdfError);
-        throw new Error('Failed to process PDF data');
+      } else {
+        // Create download URL for PDF
+        try {
+          const pdfData = atob(result.pdfData);
+          const pdfBytes = new Uint8Array(pdfData.length);
+          for (let i = 0; i < pdfData.length; i++) {
+            pdfBytes[i] = pdfData.charCodeAt(i);
+          }
+          const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+          const url = URL.createObjectURL(blob);
+          setPdfDownloadUrl(url);
+        } catch (pdfError) {
+          console.error('Error processing PDF data:', pdfError);
+          // Don't throw - submission was successful
+        }
       }
       
       setIsSubmitted(true);
@@ -92,7 +96,7 @@ export default function HomePage() {
               Thank you for your application. We have received your information and will review it shortly.
             </p>
 
-            {pdfDownloadUrl && (
+            {pdfDownloadUrl ? (
               <div className="mb-6">
                 <a
                   href={pdfDownloadUrl}
@@ -104,6 +108,13 @@ export default function HomePage() {
                   </svg>
                   Download Application PDF
                 </a>
+              </div>
+            ) : (
+              <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                <p className="text-sm text-yellow-800">
+                  <strong>Note:</strong> Your application was saved successfully, but PDF generation encountered an issue. 
+                  You can view your application in the admin panel or contact us for assistance.
+                </p>
               </div>
             )}
 

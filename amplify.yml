@@ -21,7 +21,7 @@ frontend:
     postBuild:
       commands:
         - echo "Build phase completed - database will be initialized on first API call"
-        - echo "Deployment version: 2025-11-06-03"
+        - echo "Deployment version 2025-11-06-03"
   artifacts:
     baseDirectory: .next
     files:

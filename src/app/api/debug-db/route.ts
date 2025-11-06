@@ -50,15 +50,25 @@ export async function GET() {
           `);
           results.tableExists = tableCheck.rows[0].exists;
           
-          // Get customer count directly
+          // Get table columns
+          const columnsResult = await client.query(`
+            SELECT column_name, data_type 
+            FROM information_schema.columns 
+            WHERE table_schema = 'public' 
+            AND table_name = 'customers'
+            ORDER BY ordinal_position
+          `);
+          results.tableColumns = columnsResult.rows;
+          
+          // Get customer count directly (without submission_date)
           const countResult = await client.query('SELECT COUNT(*) as count FROM customers');
           results.directCount = parseInt(countResult.rows[0].count);
           
-          // Get latest customer
+          // Get latest customer (check what columns exist first)
           const latestResult = await client.query(`
-            SELECT id, business_name, submission_date 
+            SELECT id, business_name, created_at 
             FROM customers 
-            ORDER BY submission_date DESC 
+            ORDER BY created_at DESC 
             LIMIT 1
           `);
           results.latestCustomer = latestResult.rows[0] || null;
@@ -85,4 +95,3 @@ export async function GET() {
     }, { status: 500 });
   }
 }
-

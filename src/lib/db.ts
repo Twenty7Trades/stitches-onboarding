@@ -258,21 +258,38 @@ export const customerQueries = {
 
   getAll: async () => {
     const database = getDatabase();
+    console.log('customerQueries.getAll: Database connection:', database ? 'Connected' : 'Not connected');
+    console.log('customerQueries.getAll: Is production:', isProduction);
+    
     if (isProduction && database) {
       const client = await (database as Pool).connect();
       try {
+        console.log('customerQueries.getAll: Executing PostgreSQL SELECT...');
         const result = await client.query(`
           SELECT * FROM customers ORDER BY submission_date DESC
         `);
+        console.log('customerQueries.getAll: PostgreSQL SELECT successful, rows:', result.rows.length);
         return result.rows;
+      } catch (error) {
+        console.error('customerQueries.getAll: PostgreSQL SELECT error:', error);
+        throw error;
       } finally {
         client.release();
       }
     } else if (database) {
-      return (database as Database.Database).prepare(`
-        SELECT * FROM customers ORDER BY submission_date DESC
-      `).all();
+      try {
+        console.log('customerQueries.getAll: Executing SQLite SELECT...');
+        const result = (database as Database.Database).prepare(`
+          SELECT * FROM customers ORDER BY submission_date DESC
+        `).all();
+        console.log('customerQueries.getAll: SQLite SELECT successful, rows:', result.length);
+        return result;
+      } catch (error) {
+        console.error('customerQueries.getAll: SQLite SELECT error:', error);
+        throw error;
+      }
     }
+    console.warn('customerQueries.getAll: No database connection, returning empty array');
     return [];
   },
 

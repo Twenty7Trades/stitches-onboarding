@@ -1,44 +1,39 @@
 import { NextResponse } from 'next/server';
-import { adminQueries } from '@/lib/db';
+import { initializeDatabase } from '@/lib/db';
+import { customerQueries, adminQueries } from '@/lib/db';
 
 export async function GET() {
   try {
-    console.log('Testing database connection...');
+    // Initialize database
+    await initializeDatabase();
     
-    // Try to get the admin user
-    const user = await adminQueries.getByEmail('sales@pixelprint.la');
-    console.log('Database query result:', user ? 'User found' : 'User not found');
+    // Check if admin user exists
+    const adminUser = await adminQueries.getByEmail('sales@pixelprint.la');
     
-    if (user) {
-      console.log('User details:', {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        hasPasswordHash: !!user.password_hash
-      });
-    }
+    // Count customers
+    const customers = await customerQueries.getAll();
     
     return NextResponse.json({
       success: true,
-      databaseConnected: true,
-      userFound: !!user,
-      user: user ? {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        hasPasswordHash: !!user.password_hash
-      } : null
+      databaseInitialized: true,
+      adminUserExists: !!adminUser,
+      customerCount: customers.length,
+      sampleCustomers: customers.slice(0, 3).map(c => ({
+        id: c.id,
+        business_name: c.business_name,
+        main_email: c.main_email,
+        submission_date: c.submission_date
+      }))
     });
   } catch (error) {
     console.error('Database test error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Database connection failed',
-        details: error instanceof Error ? error.message : 'Unknown error'
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
       },
       { status: 500 }
     );
   }
 }
-

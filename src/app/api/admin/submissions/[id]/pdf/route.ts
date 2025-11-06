@@ -83,8 +83,8 @@ export async function GET(
     // Generate PDF with full payment information (unmasked)
     const pdfBuffer = await generatePDFBuffer(application, false);
 
-    // Return PDF as response
-    return new NextResponse(pdfBuffer, {
+    // Return PDF as response - convert Buffer to Uint8Array for NextResponse
+    return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="stitches-application-${id}.pdf"`,

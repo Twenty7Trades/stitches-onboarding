@@ -14,6 +14,7 @@ interface PaymentAuthorizations {
   cardType?: string;
   cardNumber?: string;
   expirationDate?: string;
+  cvcNumber?: string;
   billingZipCode?: string;
 }
 

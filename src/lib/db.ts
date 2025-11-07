@@ -4,7 +4,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Determine if we're in production (PostgreSQL) or development (SQLite)
 const isProduction = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL?.startsWith('postgresql://');
-const isBuildTime = process.env.BUILD_TIME === 'true' || process.env.BUILD_TIME === '1' || process.env.CI === 'true';
+// Only consider it build time if we're actually in a build context (not runtime)
+// AWS Amplify sets CI=true during build, but not at runtime in serverless functions
+const isBuildTime = (process.env.BUILD_TIME === 'true' || process.env.BUILD_TIME === '1') && process.env.NODE_ENV !== 'production';
 
 let db: Database.Database | null = null;
 let pgPool: Pool | null = null;

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { customerQueries } from '@/lib/db';
-import { getServerSession } from '@/lib/simple-auth';
+import { getCurrentUserFromRequest } from '@/lib/simple-auth';
 
 export async function DELETE(request: NextRequest) {
   try {
     // Check authentication
-    const session = await getServerSession(request);
-    if (!session || !session.user) {
+    const user = await getCurrentUserFromRequest(request);
+    if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -51,8 +51,8 @@ export async function DELETE(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
-    const session = await getServerSession(request);
-    if (!session || !session.user) {
+    const user = await getCurrentUserFromRequest(request);
+    if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

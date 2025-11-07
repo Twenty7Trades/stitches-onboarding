@@ -97,7 +97,24 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleLogout = async () => {
+  const handleDelete = async (customerId: string) => {
+    try {
+      const response = await fetch(`/api/admin/delete-customers?id=${customerId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.details || errorData.error || 'Failed to delete customer');
+      }
+
+      // Refresh the customer list
+      await fetchCustomers();
+    } catch (error) {
+      console.error('Error deleting customer:', error);
+      alert(error instanceof Error ? error.message : 'Failed to delete customer. Please try again.');
+    }
+  };
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
       router.push('/admin/login');

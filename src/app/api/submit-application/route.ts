@@ -233,7 +233,11 @@ async function sendAdminNotification(application: Application, customerId: strin
   const smtpPort = process.env.SMTP_PORT;
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
-  const notificationEmail = process.env.NOTIFICATION_EMAIL || 'sales@pixelprint.la';
+  // Support multiple email addresses - comma or semicolon separated
+  const notificationEmails = (process.env.NOTIFICATION_EMAIL || 'sales@pixelprint.la')
+    .split(/[;,]/)
+    .map(email => email.trim())
+    .filter(email => email.length > 0);
 
   if (!smtpHost || !smtpPort || !smtpUser || !smtpPass) {
     console.error('SMTP configuration incomplete:', {
@@ -254,7 +258,7 @@ async function sendAdminNotification(application: Application, customerId: strin
     host: smtpHost,
     port: smtpPort,
     user: smtpUser,
-    to: notificationEmail,
+    to: notificationEmails,
     from: fromAddress,
     note: fromAddress === smtpUser ? 'Using SMTP_USER as from address (required for Gmail compatibility)' : 'Using SMTP_FROM'
   });
@@ -287,7 +291,7 @@ async function sendAdminNotification(application: Application, customerId: strin
   
   const mailOptions = {
     from: fromAddress,
-    to: notificationEmail,
+    to: notificationEmails, // Can be array or comma-separated string
     subject: `New onboarding submission from "${businessName}"`,
     html: `
       <p>A new onboarding submission has been received.</p>

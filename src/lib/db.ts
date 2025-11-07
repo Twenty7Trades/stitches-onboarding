@@ -414,6 +414,46 @@ export const customerQueries = {
         UPDATE customers SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
       `).run(status, id);
     }
+  },
+
+  delete: async (id: string) => {
+    const database = getDatabase();
+    if (isProduction && database) {
+      const client = await (database as Pool).connect();
+      try {
+        const result = await client.query(`
+          DELETE FROM customers WHERE id = $1
+        `, [id]);
+        return result;
+      } finally {
+        client.release();
+      }
+    } else if (database) {
+      return (database as Database.Database).prepare(`
+        DELETE FROM customers WHERE id = ?
+      `).run(id);
+    }
+    throw new Error('Database connection not available');
+  },
+
+  deleteByBusinessName: async (businessName: string) => {
+    const database = getDatabase();
+    if (isProduction && database) {
+      const client = await (database as Pool).connect();
+      try {
+        const result = await client.query(`
+          DELETE FROM customers WHERE business_name = $1
+        `, [businessName]);
+        return result;
+      } finally {
+        client.release();
+      }
+    } else if (database) {
+      return (database as Database.Database).prepare(`
+        DELETE FROM customers WHERE business_name = ?
+      `).run(businessName);
+    }
+    throw new Error('Database connection not available');
   }
 };
 

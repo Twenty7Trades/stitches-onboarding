@@ -115,6 +115,8 @@ export default function AdminDashboard() {
       alert(error instanceof Error ? error.message : 'Failed to delete customer. Please try again.');
     }
   };
+
+  const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
       router.push('/admin/login');

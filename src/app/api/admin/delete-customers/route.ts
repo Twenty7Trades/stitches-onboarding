@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { customerQueries } from '@/lib/db';
 import { getCurrentUserFromRequest } from '@/lib/simple-auth';
 
+const isProduction = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL?.startsWith('postgresql://');
+
 export async function DELETE(request: NextRequest) {
   try {
     // Check authentication

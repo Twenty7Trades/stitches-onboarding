@@ -245,12 +245,18 @@ async function sendAdminNotification(application: Application, customerId: strin
     throw new Error('SMTP configuration is incomplete. Please check environment variables.');
   }
 
+  // Use SMTP_USER as from address if SMTP_FROM doesn't match (required by Gmail and many providers)
+  const fromAddress = process.env.SMTP_FROM && process.env.SMTP_FROM === smtpUser 
+    ? process.env.SMTP_FROM 
+    : smtpUser;
+  
   console.log('Attempting to send email notification:', {
     host: smtpHost,
     port: smtpPort,
     user: smtpUser,
     to: notificationEmail,
-    from: process.env.SMTP_FROM || 'noreply@stitchesclothingco.com'
+    from: fromAddress,
+    note: fromAddress === smtpUser ? 'Using SMTP_USER as from address (required for Gmail compatibility)' : 'Using SMTP_FROM'
   });
 
   // Configure nodemailer
@@ -279,8 +285,14 @@ async function sendAdminNotification(application: Application, customerId: strin
 
   const businessName = application.businessInfo.businessName || 'Unknown Business';
   
+  // Use SMTP_USER as the from address if SMTP_FROM is not set or doesn't match SMTP_USER
+  // Many email providers (especially Gmail) require the from address to match the authenticated account
+  const fromAddress = process.env.SMTP_FROM && process.env.SMTP_FROM === smtpUser 
+    ? process.env.SMTP_FROM 
+    : smtpUser; // Fall back to SMTP_USER to ensure compatibility
+  
   const mailOptions = {
-    from: process.env.SMTP_FROM || 'noreply@stitchesclothingco.com',
+    from: fromAddress,
     to: notificationEmail,
     subject: `New onboarding submission from "${businessName}"`,
     html: `

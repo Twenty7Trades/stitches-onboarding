@@ -59,15 +59,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Send test email
+    // Use SMTP_USER as from address if SMTP_FROM doesn't match (required by Gmail and many providers)
+    const fromAddress = process.env.SMTP_FROM && process.env.SMTP_FROM === smtpUser 
+      ? process.env.SMTP_FROM 
+      : smtpUser;
+    
     const testSubject = 'Test Email - Stitches Onboarding';
     const testBody = `
       <p>This is a test email from the Stitches Onboarding system.</p>
       <p>If you receive this, your SMTP configuration is working correctly.</p>
       <p><strong>Sent at:</strong> ${new Date().toLocaleString()}</p>
+      <p><strong>From address:</strong> ${fromAddress}</p>
+      <p><strong>SMTP User:</strong> ${smtpUser}</p>
     `;
 
     const mailOptions = {
-      from: process.env.SMTP_FROM || 'noreply@stitchesclothingco.com',
+      from: fromAddress,
       to: recipientEmail,
       subject: testSubject,
       html: testBody,

@@ -53,6 +53,19 @@ export default function SubmissionsList({ customers, onDownloadPDF, onDelete }: 
     }
   };
 
+  const handleDownloadPDF = async (customerId: string) => {
+    setDownloadingIds(prev => new Set(prev).add(customerId));
+    try {
+      await onDownloadPDF(customerId);
+    } finally {
+      setDownloadingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(customerId);
+        return newSet;
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Search */}

@@ -1,6 +1,6 @@
 # Project Notes - stitches-onboarding
 
-> Last Updated: 2025-11-04
+> Last Updated: 2025-11-07
 > Project Type: Next.js
 
 ## Critical Information
@@ -11,7 +11,7 @@
 - **admin**: https://main.d3t8wpufosawhp.amplifyapp.com/admin
 
 ### Key Configurations
-- **adminEmail**: AWS Amplify Environment Variables (sales@pixelprint.la)
+- **adminEmail**: AWS Amplify Environment Variables (info@stitchesclothingco.com)
 - **smtp**: AWS Amplify Environment Variables (See AWS_AMPLIFY_SMTP_SETUP.md)
 
 ### Environment Variables

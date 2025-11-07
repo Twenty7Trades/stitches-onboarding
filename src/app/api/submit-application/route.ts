@@ -277,22 +277,24 @@ async function sendAdminNotification(application: Application, customerId: strin
     throw new Error(`SMTP connection failed: ${verifyError instanceof Error ? verifyError.message : 'Unknown error'}`);
   }
 
+  const businessName = application.businessInfo.businessName || 'Unknown Business';
+  
   const mailOptions = {
     from: process.env.SMTP_FROM || 'noreply@stitchesclothingco.com',
     to: notificationEmail,
-    subject: 'New Customer Application - Stitches Clothing Co',
+    subject: `New onboarding submission from "${businessName}"`,
     html: `
-      <h2>New Customer Application Received</h2>
-      <p><strong>Business Name:</strong> ${application.businessInfo.businessName}</p>
-      <p><strong>Contact:</strong> ${application.businessInfo.mainContactRep}</p>
+      <p>A new onboarding submission has been received.</p>
+      
+      <p><strong>Business Name:</strong> ${businessName}</p>
+      <p><strong>Contact:</strong> ${application.businessInfo.mainContactRep || 'N/A'}</p>
       <p><strong>Email:</strong> ${application.businessInfo.mainEmail}</p>
-      <p><strong>Phone:</strong> ${application.businessInfo.phone}</p>
+      <p><strong>Phone:</strong> ${application.businessInfo.phone || 'N/A'}</p>
       <p><strong>Payment Method:</strong> ${application.paymentMethod}</p>
       <p><strong>Application ID:</strong> ${customerId}</p>
       <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
       
-      <p>Please see the attached PDF for the complete application details.</p>
-      <p>You can also log into the admin portal to review the full application.</p>
+      <p>Please see the attached PDF for complete application details.</p>
     `,
     attachments: [
       {

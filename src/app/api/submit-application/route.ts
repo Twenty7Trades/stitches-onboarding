@@ -3,6 +3,7 @@ import { applicationSchema, Application } from '@/lib/validation';
 import { customerQueries, uuidv4, initializeDatabase } from '@/lib/db';
 import { encrypt, getLast4Digits } from '@/lib/encryption';
 import { generatePDFBuffer } from '@/lib/pdf-export';
+import { formatDateForDisplay } from '@/lib/date-utils';
 import nodemailer from 'nodemailer';
 
 // GET method to check deployment version
@@ -302,7 +303,7 @@ async function sendAdminNotification(application: Application, customerId: strin
       <p><strong>Phone:</strong> ${application.businessInfo.phone || 'N/A'}</p>
       <p><strong>Payment Method:</strong> ${application.paymentMethod}</p>
       <p><strong>Application ID:</strong> ${customerId}</p>
-      <p><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
+      <p><strong>Submitted:</strong> ${formatDateForDisplay()}</p>
       
       <p>Please see the attached PDF for complete application details.</p>
     `,

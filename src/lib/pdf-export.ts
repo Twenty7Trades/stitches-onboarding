@@ -1,6 +1,7 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { Application } from './validation';
 import { getLast4Digits } from './encryption';
+import { formatDateForDisplay } from './date-utils';
 
 export async function generatePDFBuffer(
   application: Application,
@@ -35,7 +36,7 @@ export async function generatePDFBuffer(
     
     yPosition -= 25;
     
-    const submittedText = `Submitted: ${new Date().toLocaleString()}`;
+    const submittedText = `Submitted: ${formatDateForDisplay()}`;
     const submittedWidth = helveticaFont.widthOfTextAtSize(submittedText, 12);
     page.drawText(submittedText, {
       x: (612 - submittedWidth) / 2,
@@ -231,7 +232,7 @@ export async function generatePDFBuffer(
     
     // Timestamp at bottom
     const timestampY = signatureY - 100;
-    const timestampText = `Generated: ${new Date().toLocaleString()}`;
+    const timestampText = `Generated: ${formatDateForDisplay()}`;
     const timestampWidth = helveticaFont.widthOfTextAtSize(timestampText, 10);
     page.drawText(timestampText, {
       x: (612 - timestampWidth) / 2,

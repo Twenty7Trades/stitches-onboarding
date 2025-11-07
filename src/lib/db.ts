@@ -13,20 +13,37 @@ let pgPool: Pool | null = null;
 
 // Lazy initialization - only connect at runtime, not during build
 function getDatabase() {
+  console.log('getDatabase() called:');
+  console.log('  isProduction:', isProduction);
+  console.log('  isBuildTime:', isBuildTime);
+  console.log('  NODE_ENV:', process.env.NODE_ENV);
+  console.log('  BUILD_TIME:', process.env.BUILD_TIME);
+  console.log('  CI:', process.env.CI);
+  console.log('  DATABASE_URL exists:', !!process.env.DATABASE_URL);
+  
   if (isProduction && !isBuildTime) {
+    console.log('  Creating PostgreSQL pool...');
     if (!pgPool) {
       pgPool = new Pool({
         connectionString: process.env.DATABASE_URL,
         ssl: { rejectUnauthorized: false }
       });
+      console.log('  PostgreSQL pool created');
+    } else {
+      console.log('  PostgreSQL pool already exists');
     }
     return pgPool;
   } else if (!isProduction && !isBuildTime) {
+    console.log('  Creating SQLite database...');
     if (!db) {
       db = new Database('stitches.db');
+      console.log('  SQLite database created');
+    } else {
+      console.log('  SQLite database already exists');
     }
     return db;
   }
+  console.log('  Returning null - conditions not met');
   return null;
 }
 

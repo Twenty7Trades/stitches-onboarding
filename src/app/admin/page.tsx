@@ -250,6 +250,7 @@ export default function AdminDashboard() {
           <SubmissionsList
             customers={customers}
             onDownloadPDF={handleDownloadPDF}
+            onDelete={handleDelete}
           />
         </div>
       </main>

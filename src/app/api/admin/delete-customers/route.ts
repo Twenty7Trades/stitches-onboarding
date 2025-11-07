@@ -25,10 +25,11 @@ export async function DELETE(request: NextRequest) {
       });
     } else if (businessName) {
       const result = await customerQueries.deleteByBusinessName(businessName);
+      const deletedCount = isProduction ? (result as { rowCount?: number }).rowCount || 0 : (result as { changes?: number }).changes || 0;
       return NextResponse.json({ 
         success: true, 
         message: `All customers with business name "${businessName}" deleted successfully`,
-        deletedCount: result.rowCount || 0
+        deletedCount
       });
     } else {
       return NextResponse.json(
@@ -70,10 +71,11 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await customerQueries.deleteByBusinessName(businessName);
+    const deletedCount = isProduction ? (result as { rowCount?: number }).rowCount || 0 : (result as { changes?: number }).changes || 0;
     return NextResponse.json({ 
       success: true, 
       message: `All customers with business name "${businessName}" deleted successfully`,
-      deletedCount: result.rowCount || 0
+      deletedCount
     });
   } catch (error) {
     console.error('Error deleting customers:', error);

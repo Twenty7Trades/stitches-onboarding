@@ -285,12 +285,6 @@ async function sendAdminNotification(application: Application, customerId: strin
 
   const businessName = application.businessInfo.businessName || 'Unknown Business';
   
-  // Use SMTP_USER as the from address if SMTP_FROM is not set or doesn't match SMTP_USER
-  // Many email providers (especially Gmail) require the from address to match the authenticated account
-  const fromAddress = process.env.SMTP_FROM && process.env.SMTP_FROM === smtpUser 
-    ? process.env.SMTP_FROM 
-    : smtpUser; // Fall back to SMTP_USER to ensure compatibility
-  
   const mailOptions = {
     from: fromAddress,
     to: notificationEmail,

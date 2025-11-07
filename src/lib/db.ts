@@ -165,7 +165,7 @@ export async function initializeDatabase() {
         const { hashPassword } = await import('@/lib/simple-auth');
         const checkAdminResult = await client.query(`
           SELECT * FROM admin_users WHERE email = $1
-        `, ['sales@pixelprint.la']);
+        `, ['info@stitchesclothingco.com']);
         
         console.log('Admin user check result:', checkAdminResult.rows.length, 'rows found');
         
@@ -178,14 +178,14 @@ export async function initializeDatabase() {
           
           const insertResult = await client.query(`
             INSERT INTO admin_users (id, email, password_hash, name) VALUES ($1, $2, $3, $4)
-          `, [adminId, 'sales@pixelprint.la', passwordHash, 'Admin User']);
+          `, [adminId, 'info@stitchesclothingco.com', passwordHash, 'Admin User']);
           
           console.log('Insert result:', insertResult.rowCount, 'rows inserted');
           
           // Verify it was created
           const verifyResult = await client.query(`
             SELECT * FROM admin_users WHERE email = $1
-          `, ['sales@pixelprint.la']);
+          `, ['info@stitchesclothingco.com']);
           
           if (verifyResult.rows.length > 0) {
             console.log('Default admin user created and verified');
@@ -194,6 +194,19 @@ export async function initializeDatabase() {
           }
         } else {
           console.log('Default admin user already exists');
+        }
+        
+        // Update existing sales@pixelprint.la admin to new email if it exists
+        const oldAdminResult = await client.query(`
+          SELECT * FROM admin_users WHERE email = $1
+        `, ['sales@pixelprint.la']);
+        
+        if (oldAdminResult.rows.length > 0) {
+          console.log('Updating old admin email to info@stitchesclothingco.com...');
+          await client.query(`
+            UPDATE admin_users SET email = $1 WHERE email = $2
+          `, ['info@stitchesclothingco.com', 'sales@pixelprint.la']);
+          console.log('Admin email updated successfully');
         }
       } catch (adminError) {
         console.error('Error creating admin user in initializeDatabase:', adminError);
@@ -267,7 +280,7 @@ export async function initializeDatabase() {
     const { hashPassword } = await import('@/lib/simple-auth');
     const existingAdmin = (database as Database.Database).prepare(`
       SELECT * FROM admin_users WHERE email = ?
-    `).get('sales@pixelprint.la');
+    `).get('info@stitchesclothingco.com');
     
     if (!existingAdmin) {
       console.log('Creating default admin user...');
@@ -275,10 +288,23 @@ export async function initializeDatabase() {
       const passwordHash = await hashPassword('Stitches123');
       (database as Database.Database).prepare(`
         INSERT INTO admin_users (id, email, password_hash, name) VALUES (?, ?, ?, ?)
-      `).run(adminId, 'sales@pixelprint.la', passwordHash, 'Admin User');
+      `).run(adminId, 'info@stitchesclothingco.com', passwordHash, 'Admin User');
       console.log('Default admin user created');
     } else {
       console.log('Default admin user already exists');
+    }
+    
+    // Update existing sales@pixelprint.la admin to new email if it exists
+    const oldAdmin = (database as Database.Database).prepare(`
+      SELECT * FROM admin_users WHERE email = ?
+    `).get('sales@pixelprint.la');
+    
+    if (oldAdmin) {
+      console.log('Updating old admin email to info@stitchesclothingco.com...');
+      (database as Database.Database).prepare(`
+        UPDATE admin_users SET email = ? WHERE email = ?
+      `).run('info@stitchesclothingco.com', 'sales@pixelprint.la');
+      console.log('Admin email updated successfully');
     }
   }
 }

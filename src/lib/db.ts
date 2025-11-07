@@ -79,6 +79,7 @@ export async function initializeDatabase() {
 
       // Add missing columns if table already exists with old schema
       try {
+        console.log('Checking for missing columns in customers table...');
         // Check which columns exist
         const columnsResult = await client.query(`
           SELECT column_name 
@@ -87,6 +88,7 @@ export async function initializeDatabase() {
           AND table_name = 'customers'
         `);
         const existingColumns = new Set(columnsResult.rows.map(r => r.column_name));
+        console.log('Existing columns:', Array.from(existingColumns).sort().join(', '));
         
         // Add missing columns
         const requiredColumns = [
@@ -95,17 +97,28 @@ export async function initializeDatabase() {
           { name: 'updated_at', sql: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP' }
         ];
         
+        let columnsAdded = 0;
         for (const col of requiredColumns) {
           if (!existingColumns.has(col.name)) {
             console.log(`Adding missing column ${col.name} to customers table...`);
-            await client.query(`
-              ALTER TABLE customers 
-              ADD COLUMN ${col.name} ${col.sql}
-            `);
+            try {
+              await client.query(`
+                ALTER TABLE customers 
+                ADD COLUMN ${col.name} ${col.sql}
+              `);
+              console.log(`Successfully added column ${col.name}`);
+              columnsAdded++;
+            } catch (alterError) {
+              console.error(`Error adding column ${col.name}:`, alterError);
+              // Continue with other columns even if one fails
+            }
+          } else {
+            console.log(`Column ${col.name} already exists`);
           }
         }
+        console.log(`Migration complete: ${columnsAdded} columns added`);
       } catch (migrationError) {
-        console.error('Error adding missing columns:', migrationError);
+        console.error('Error in migration check:', migrationError);
         // Don't fail initialization if migration fails
       }
 

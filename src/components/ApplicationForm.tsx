@@ -16,6 +16,8 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
   const [currentStep, setCurrentStep] = useState(1);
   const [signature, setSignature] = useState('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [resellerPermitFile, setResellerPermitFile] = useState<File | null>(null);
+  const [resellerPermitFileName, setResellerPermitFileName] = useState<string>('');
 
   const {
     register,
@@ -306,6 +308,50 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
                 {errors.businessInfo?.averageOrderSize && (
                   <p className="text-red-500 text-sm mt-1">{errors.businessInfo.averageOrderSize.message}</p>
                 )}
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Reseller Permit (Optional)
+                </label>
+                <div className="mt-1">
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.gif"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        // Validate file size (max 10MB)
+                        if (file.size > 10 * 1024 * 1024) {
+                          setValidationErrors(['File size must be less than 10MB']);
+                          return;
+                        }
+                        setResellerPermitFile(file);
+                        setResellerPermitFileName(file.name);
+                        // Convert to base64
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          const base64String = reader.result as string;
+                          setValue('resellerPermit', base64String);
+                        };
+                        reader.readAsDataURL(file);
+                      } else {
+                        setResellerPermitFile(null);
+                        setResellerPermitFileName('');
+                        setValue('resellerPermit', undefined);
+                      }
+                    }}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  {resellerPermitFileName && (
+                    <p className="mt-2 text-sm text-gray-600">
+                      Selected: {resellerPermitFileName}
+                    </p>
+                  )}
+                  <p className="mt-1 text-xs text-gray-500">
+                    Accepted formats: PDF, JPG, PNG, GIF (max 10MB)
+                  </p>
+                </div>
               </div>
             </div>
           </div>

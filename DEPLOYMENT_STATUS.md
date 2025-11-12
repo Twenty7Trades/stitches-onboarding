@@ -66,3 +66,4 @@ The code in `src/app/api/submit-application/route.ts` correctly returns:
 
 The issue is AWS Amplify deployment, not the code itself.
 
+

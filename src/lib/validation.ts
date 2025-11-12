@@ -130,7 +130,8 @@ export const applicationSchema = z.object({
   shippingInfo: shippingInfoSchema,
   paymentMethod: paymentMethodSchema,
   paymentDetails: z.union([achPaymentSchema, ccPaymentSchema, net15PaymentSchema]),
-  signature: signatureSchema
+  signature: signatureSchema,
+  resellerPermit: z.string().optional() // Base64 encoded file data (optional)
 });
 
 // Admin Login Schema

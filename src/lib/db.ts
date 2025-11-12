@@ -89,6 +89,7 @@ export async function initializeDatabase() {
           payment_account_type VARCHAR(20),
           payment_authorizations_encrypted TEXT,
           signature_data TEXT,
+          reseller_permit TEXT,
           status VARCHAR(20) DEFAULT 'pending',
           submission_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -113,7 +114,8 @@ export async function initializeDatabase() {
         const requiredColumns = [
           { name: 'submission_date', sql: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP' },
           { name: 'status', sql: 'VARCHAR(20) DEFAULT \'pending\'' },
-          { name: 'updated_at', sql: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP' }
+          { name: 'updated_at', sql: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP' },
+          { name: 'reseller_permit', sql: 'TEXT' }
         ];
         
         let columnsAdded = 0;
@@ -249,14 +251,15 @@ export async function initializeDatabase() {
         payment_card_type TEXT,
         payment_account_last4 TEXT,
         payment_account_type TEXT,
-        payment_authorizations_encrypted TEXT,
-        signature_data TEXT,
-        status TEXT DEFAULT 'pending',
-        submission_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+          payment_authorizations_encrypted TEXT,
+          signature_data TEXT,
+          reseller_permit TEXT,
+          status TEXT DEFAULT 'pending',
+          submission_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
 
     (database as Database.Database).exec(`
       CREATE TABLE IF NOT EXISTS admin_users (
@@ -330,8 +333,8 @@ export const customerQueries = {
             billing_contact, billing_phone, billing_email, shipping_address, shipping_city,
             shipping_state, shipping_zip, shipping_contact, shipping_phone, payment_method,
             payment_card_last4, payment_card_type, payment_account_last4, payment_account_type,
-            payment_authorizations_encrypted, signature_data, status, submission_date, created_at, updated_at
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35)
+            payment_authorizations_encrypted, signature_data, reseller_permit, status, submission_date, created_at, updated_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36)
         `, data);
         console.log('customerQueries.insert: PostgreSQL INSERT successful, rowCount:', result.rowCount);
         return result;
@@ -352,8 +355,8 @@ export const customerQueries = {
             billing_contact, billing_phone, billing_email, shipping_address, shipping_city,
             shipping_state, shipping_zip, shipping_contact, shipping_phone, payment_method,
             payment_card_last4, payment_card_type, payment_account_last4, payment_account_type,
-            payment_authorizations_encrypted, signature_data, status, submission_date, created_at, updated_at
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            payment_authorizations_encrypted, signature_data, reseller_permit, status, submission_date, created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(...data);
         console.log('customerQueries.insert: SQLite INSERT successful, changes:', result.changes);
         return result;

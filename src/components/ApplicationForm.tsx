@@ -351,6 +351,9 @@ export default function ApplicationForm({ onSubmit, isLoading }: ApplicationForm
                   <p className="mt-1 text-xs text-gray-500">
                     Accepted formats: PDF, JPG, PNG, GIF (max 10MB)
                   </p>
+                  <p className="mt-1 text-xs text-gray-400 italic">
+                    You can submit later if needed
+                  </p>
                 </div>
               </div>
             </div>

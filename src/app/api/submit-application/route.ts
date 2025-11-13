@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
         paymentAccountType || '',
         encryptedAuthorizations,
         validatedData.signature.signature,
-        validatedData.resellerPermit || null, // reseller_permit (optional)
+        validatedData.resellerPermit || '', // reseller_permit (optional)
         'pending', // status
         new Date().toISOString(), // submission_date
         new Date().toISOString(), // created_at

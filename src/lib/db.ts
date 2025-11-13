@@ -12,7 +12,7 @@ let db: Database.Database | null = null;
 let pgPool: Pool | null = null;
 
 // Lazy initialization - only connect at runtime, not during build
-function getDatabase() {
+export function getDatabase() {
   console.log('getDatabase() called:');
   console.log('  isProduction:', isProduction);
   console.log('  isBuildTime:', isBuildTime);

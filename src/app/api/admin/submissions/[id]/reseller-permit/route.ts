@@ -14,7 +14,7 @@ export async function GET(
 
     const { id } = await params;
     const customers = await customerQueries.getAll();
-    const customer = customers.find((c: any) => c.id === id);
+    const customer = customers.find((c: { id: string; reseller_permit?: string }) => c.id === id);
 
     if (!customer) {
       return NextResponse.json({ error: 'Customer not found' }, { status: 404 });

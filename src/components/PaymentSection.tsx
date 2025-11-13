@@ -83,19 +83,31 @@ export default function PaymentSection({ register, watch, errors, setValue }: Pa
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment Method</h3>
         <div className="space-y-2">
           {['ACH', 'CC', 'NET15'].map((method) => (
-            <label key={method} className="flex items-center">
-              <input
-                type="radio"
-                value={method}
-                {...register('paymentMethod')}
-                className="mr-2"
-              />
-              <span className="text-sm text-gray-900">
-                {method === 'ACH' && 'ACH Payments'}
-                {method === 'CC' && 'Auto CC Charge'}
-                {method === 'NET15' && 'Net 15'}
-              </span>
-            </label>
+            <div key={method}>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  value={method}
+                  {...register('paymentMethod')}
+                  className="mr-2"
+                />
+                <span className="text-sm text-gray-900">
+                  {method === 'ACH' && 'ACH Payments'}
+                  {method === 'CC' && 'Auto CC Charge'}
+                  {method === 'NET15' && 'Net 15'}
+                </span>
+              </label>
+              {method === 'ACH' && (
+                <p className="text-xs text-gray-600 ml-6 mt-1">
+                  ACH payments are processed the same day your order ships.
+                </p>
+              )}
+              {method === 'NET15' && (
+                <p className="text-xs text-gray-600 ml-6 mt-1">
+                  Please mail us a check within 15 days.
+                </p>
+              )}
+            </div>
           ))}
         </div>
         {errors.paymentMethod && (
@@ -200,6 +212,121 @@ export default function PaymentSection({ register, watch, errors, setValue }: Pa
                 </span>
               </div>
             ))}
+          </div>
+
+          {/* Backup Credit Card Section */}
+          <div className="mt-8 pt-6 border-t border-gray-300">
+            <h4 className="text-md font-semibold text-gray-900 mb-4">Backup Credit Card Information</h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Cardholder Name *
+                </label>
+                <input
+                  type="text"
+                  {...register('paymentDetails.backupCardholderName')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
+                />
+                {(errors.paymentDetails as any)?.backupCardholderName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {(errors.paymentDetails as any).backupCardholderName.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Card Type *
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {['VISA', 'MC', 'AMEX', 'DISCOVER', 'OTHER'].map((type) => (
+                    <label key={type} className="flex items-center">
+                      <input
+                        type="radio"
+                        value={type}
+                        {...register('paymentDetails.backupCardType')}
+                        className="mr-2"
+                      />
+                      <span className="text-sm text-gray-900">{type}</span>
+                    </label>
+                  ))}
+                </div>
+                {(errors.paymentDetails as any)?.backupCardType && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {(errors.paymentDetails as any).backupCardType.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Card Number *
+                </label>
+                <input
+                  type="text"
+                  {...register('paymentDetails.backupCardNumber')}
+                  placeholder="1234 5678 9012 3456"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
+                />
+                {(errors.paymentDetails as any)?.backupCardNumber && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {(errors.paymentDetails as any).backupCardNumber.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Expiration Date *
+                </label>
+                <input
+                  type="text"
+                  {...register('paymentDetails.backupExpirationDate')}
+                  placeholder="MM/YY or MMYY"
+                  maxLength={5}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
+                />
+                {(errors.paymentDetails as any)?.backupExpirationDate && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {(errors.paymentDetails as any).backupExpirationDate.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  CVC Number *
+                </label>
+                <input
+                  type="text"
+                  {...register('paymentDetails.backupCvcNumber')}
+                  placeholder="123"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
+                />
+                {(errors.paymentDetails as any)?.backupCvcNumber && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {(errors.paymentDetails as any).backupCvcNumber.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Billing Zip Code *
+                </label>
+                <input
+                  type="text"
+                  {...register('paymentDetails.backupBillingZipCode')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 placeholder-gray-400"
+                />
+                {(errors.paymentDetails as any)?.backupBillingZipCode && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {(errors.paymentDetails as any).backupBillingZipCode.message}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}

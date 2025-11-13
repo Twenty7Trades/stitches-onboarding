@@ -53,7 +53,7 @@ export const shippingInfoSchema = z.object({
   }, 'Valid shipping phone is required (10 digits)')
 });
 
-// ACH Payment Schema
+// ACH Payment Schema (with backup credit card)
 export const achPaymentSchema = z.object({
   accountHolderName: z.string().min(1, 'Account holder name is required'),
   accountType: z.enum(['CHECKING', 'SAVINGS'], {
@@ -63,7 +63,21 @@ export const achPaymentSchema = z.object({
   accountNumber: z.string().min(4, 'Account number is required'),
   authorization1: z.boolean().refine(val => val === true, 'Authorization required'),
   authorization2: z.boolean().refine(val => val === true, 'Authorization required'),
-  authorization3: z.boolean().refine(val => val === true, 'Authorization required')
+  authorization3: z.boolean().refine(val => val === true, 'Authorization required'),
+  // Backup credit card fields
+  backupCardholderName: z.string().min(1, 'Backup cardholder name is required'),
+  backupCardType: z.enum(['VISA', 'MC', 'AMEX', 'DISCOVER', 'OTHER'], {
+    message: 'Please select backup card type'
+  }),
+  backupCardNumber: z.string().min(13, 'Valid backup card number is required'),
+  backupExpirationDate: z.string().refine((val) => {
+    const cleaned = val.replace(/\D/g, '');
+    if (cleaned.length !== 4) return false;
+    const month = parseInt(cleaned.substring(0, 2), 10);
+    return month >= 1 && month <= 12;
+  }, 'Valid backup expiration date (MM/YY or MMYY) is required'),
+  backupCvcNumber: z.string().min(3, 'Backup CVC is required'),
+  backupBillingZipCode: z.string().min(5, 'Backup billing zip code is required')
 });
 
 // Credit Card Payment Schema

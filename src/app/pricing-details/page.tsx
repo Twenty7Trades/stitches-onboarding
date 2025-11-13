@@ -462,7 +462,7 @@ export default function PricingDetailsPage() {
                 </p>
                 <ul className="text-sm text-orange-800 space-y-1">
                   <li>• 2-3 day - add 50%</li>
-                  <li>• 3-5 day - add 25%</li>
+                  <li>• 4-5 day - add 25%</li>
                 </ul>
                 <p className="text-xs text-orange-700 mt-2">
                   *Add 100% for Rush orders under the 100 piece minimum and/or less than 2 day turnaround. 
@@ -551,9 +551,9 @@ export default function PricingDetailsPage() {
             {/* Contact Information & Freight Images */}
             <div className="mb-8">
               <div className="bg-gray-100 p-6 rounded-lg">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="flex flex-col md:grid md:grid-cols-3 gap-8">
                   {/* Left Column - Contact Information */}
-                  <div className="text-left md:col-span-1">
+                  <div className="text-left md:col-span-1 order-1">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
                     <div className="space-y-2 text-gray-700">
                       <p className="text-lg font-semibold">Stitches Clothing Co.</p>
@@ -570,16 +570,16 @@ export default function PricingDetailsPage() {
                   </div>
 
                   {/* Right Column - Freight Images Side by Side */}
-                  <div className="flex space-x-2 md:col-span-2">
+                  <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 md:col-span-2 order-2">
                     <img 
                       src="/images/freight1.png" 
                       alt="Freight Information 1" 
-                      className="flex-1 h-auto max-h-32"
+                      className="w-full md:flex-1 h-auto max-h-32 object-contain"
                     />
                     <img 
                       src="/images/freight2.png" 
                       alt="Freight Information 2" 
-                      className="flex-1 h-auto max-h-32"
+                      className="w-full md:flex-1 h-auto max-h-32 object-contain"
                     />
                   </div>
                 </div>

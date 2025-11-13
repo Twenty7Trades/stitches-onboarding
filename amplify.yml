@@ -3,17 +3,15 @@ frontend:
   phases:
     preBuild:
       commands:
-        - echo "=== CLEARING ALL CACHES - FORCE FRESH BUILD ==="
+        - echo "=== CLEARING CACHES ==="
         - rm -rf .next
         - rm -rf node_modules/.cache
-        - rm -rf .npm
-        - rm -rf node_modules
         - echo "Installing dependencies..."
-        - npm ci --no-cache
-        - echo "Clearing Next.js cache to force fresh build..."
+        - npm ci
+        - echo "Dependencies installed"
     build:
       commands:
-        - echo "=== BUILDING VERSION $(date +%Y-%m-%d-%H%M%S) ==="
+        - echo "=== BUILDING ==="
         - echo "Setting build environment variables..."
         - export BUILD_TIME=true
         - export NODE_ENV=production
@@ -21,14 +19,13 @@ frontend:
         - echo "Building Next.js application..."
         - npm run build
         - echo "Build completed successfully"
-        - echo "Build timestamp: $(date)"
     postBuild:
       commands:
-        - echo "Build phase completed - database will be initialized on first API call"
-        - echo "Deployment timestamp: $(date)"
+        - echo "Build phase completed"
   artifacts:
     baseDirectory: .next
     files:
       - "**/*"
   cache:
-    paths: []
+    paths:
+      - node_modules/**/*
